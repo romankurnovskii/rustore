@@ -2,6 +2,9 @@
   <img src="assets/icon.png" alt="rustore CLI" width="128" height="128">
   <h1>rustore<br>CLI для работы с RuStore API</h1>
   <p>Командная строка для взаимодействия с RuStore API</p>
+  <p>
+    <a href="README.en.md">English</a> | <a href="README.md">Русский</a>
+  </p>
 </div>
 
 [![NPM version][npm-image]][npm-url]

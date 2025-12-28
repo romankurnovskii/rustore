@@ -15,8 +15,10 @@
     "rustore",
     "api",
     "cli",
-    "russia",
-    "app-store"
+    "android",
+    "app-store",
+    "apk",
+    "aab"
   ],
   "author": {
     "name": "Roman Kurnovskii",
