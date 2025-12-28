@@ -47,7 +47,7 @@
     "test:watch": "jest --config jestconfig.json --watch",
     "test:coverage": "jest --config jestconfig.json --coverage",
     "prepare": "husky",
-    "prepublishOnly": "npm run type-check && npm run build && npm test && npm run format:check && npm run lint"
+    "prepublishOnly": "npm run type-check && npm run build && npm test -- --runInBand && npm run format:check && npm run lint"
   },
   "files": [
     "dist",
