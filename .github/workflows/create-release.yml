@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+  release:
+    types: [created]
+
+jobs:
+  create-release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Get Version
+        id: get_version
+        run: |
+          echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+          echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm test
+        working-directory: .
+
+      - name: Upload Assets to Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # add write permission https://github.com/romankurnovskii/REPOSITORY/settings/actions
+        with:
+          files: |
+            ./dist/pytree-${{ env.VERSION }}.zip
+          draft: false
+          name: ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          generate_release_notes: true

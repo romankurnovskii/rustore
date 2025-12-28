@@ -1,0 +1,26 @@
+name: Combine PR
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Monday at 09:00 UTC
+  workflow_dispatch: # allows to manually trigger the workflow
+
+# The minimum permissions required to run this Action
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  combine-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Replace SSH with token-based HTTPS for private GitHub repo
+        run: git config --global url."https://x-access-token:${{ secrets.GH_PAT }}@github.com/".insteadOf "ssh://git@github.com/"
+
+      - name: combine-prs
+        id: combine-prs
+        uses: github/combine-prs@v5.2.0
+        with:
+          github_token: ${{ secrets.TOKEN_PR }} # TOKEN_PR should be added in repo as a secret env
+          labels: combined-pr
