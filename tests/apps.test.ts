@@ -54,6 +54,11 @@ describe('Apps API', () => {
       const api = new AppsApi();
       expect(typeof api.createDraftVersion).toBe('function');
     });
+
+    it('должен иметь метод uploadApkFile', () => {
+      const api = new AppsApi();
+      expect(typeof api.uploadApkFile).toBe('function');
+    });
   });
 
   it('должен проверять доступность endpoint создания черновой версии', async () => {
@@ -92,6 +97,44 @@ describe('Apps API', () => {
           versionName: '1.0.0',
           versionCode: 1,
         }),
+      },
+    );
+
+    // Без авторизации должен вернуть ошибку (401, 403, 404 или другой код ошибки)
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  }, 10000);
+
+  it('должен проверять доступность endpoint загрузки APK файла', async () => {
+    // Проверяем, что endpoint отвечает (может вернуть 404, 401, 403 или другой статус)
+    // Используем тестовые appId и versionId
+    const testAppId = 123456;
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testAppId}/version/${testVersionId}/apk-file`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        // Не отправляем реальный файл в тесте, просто проверяем доступность endpoint
+      },
+    );
+
+    // Endpoint должен отвечать (любой статус кроме сетевых ошибок)
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен возвращать ошибку без токена при загрузке APK файла', async () => {
+    const testAppId = 123456;
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testAppId}/version/${testVersionId}/apk-file`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       },
     );
 

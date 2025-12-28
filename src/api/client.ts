@@ -11,7 +11,7 @@ const API_BASE_URL = 'https://public-api.rustore.ru';
  * Базовый класс для работы с API
  */
 export class RustoreApiClient {
-  private baseUrl: string;
+  protected baseUrl: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -24,15 +24,29 @@ export class RustoreApiClient {
     const token = await getToken();
     const url = `${this.baseUrl}${endpoint}`;
 
+    // Debug: логируем URL для отладки (можно убрать в production)
+    if (process.env.DEBUG) {
+      console.error(`[DEBUG] API Request: ${url}`);
+    }
+
+    // Определяем заголовки: для multipart/form-data не устанавливаем Content-Type
+    // (браузер/fetch установит его автоматически с boundary)
+    const isMultipart = options.body instanceof FormData;
+    const headers: Record<string, string> = {
+      'Public-Token': token, // JWE токен из login передаётся в заголовке Public-Token
+      ...(options.headers as Record<string, string>),
+    };
+
+    // Для JSON запросов добавляем Content-Type
+    if (!isMultipart) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     // RuStore API использует JWE токен в заголовке Public-Token
     // Токен получается через login и передаётся в заголовке Public-Token
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Public-Token': token, // JWE токен из login передаётся в заголовке Public-Token
-        ...options.headers,
-      },
+      headers,
     });
 
     if (!response.ok) {

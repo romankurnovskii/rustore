@@ -108,3 +108,19 @@ export interface CreateDraftVersionResponse {
   };
   timestamp: string;
 }
+
+/**
+ * Ответ на загрузку APK/AAB файла
+ * POST /public/v1/application/{appId}/version/{versionId}/apk-file
+ */
+export interface UploadApkFileResponse {
+  code: string;
+  message?: string;
+  body?: {
+    fileId?: string;
+    fileName?: string;
+    fileSize?: number;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}

@@ -3,13 +3,16 @@
  * Категория: Загрузка и публикация приложений (общие методы)
  */
 
+import {readFileSync} from 'node:fs';
 import {RustoreApiClient} from './client.js';
+import {getToken} from './auth.js';
 import type {
   GetAppListResponse,
   App,
   GetAppListOptions,
   CreateDraftVersionRequest,
   CreateDraftVersionResponse,
+  UploadApkFileResponse,
 } from '../types.js';
 
 /**
@@ -93,6 +96,71 @@ export class AppsApi extends RustoreApiClient {
   ): Promise<CreateDraftVersionResponse> {
     const endpoint = `/public/v1/application/${appId}/draft-version`;
     return this.post<CreateDraftVersionResponse>(endpoint, data);
+  }
+
+  /**
+   * Загрузить APK/AAB файл для версии приложения
+   * POST /public/v1/application/{appId}/version/{versionId}/apk-file
+   *
+   * Метод позволяет загрузить APK или AAB файл для черновой версии приложения.
+   *
+   * @param appId - ID приложения
+   * @param versionId - ID версии (полученный из createDraftVersion)
+   * @param filePath - Путь к APK/AAB файлу
+   * @returns Информация о загруженном файле
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload
+   */
+  async uploadApkFile(
+    appId: number,
+    versionId: number,
+    filePath: string,
+  ): Promise<UploadApkFileResponse> {
+    const endpoint = `/public/v1/application/${appId}/version/${versionId}/apk-file`;
+
+    // Читаем файл
+    const fileBuffer = readFileSync(filePath);
+    const fileName = filePath.split('/').pop() || 'app.apk';
+
+    // Создаём FormData для multipart/form-data запроса
+    const formData = new FormData();
+    const blob = new Blob([fileBuffer], {
+      type: 'application/vnd.android.package-archive',
+    });
+    formData.append('file', blob, fileName);
+
+    // Выполняем запрос с FormData
+    const token = await getToken();
+    const url = `${this.baseUrl}${endpoint}`;
+
+    if (process.env.DEBUG) {
+      console.error(`[DEBUG] API Request: ${url} (uploading ${fileName})`);
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Public-Token': token,
+        // Не устанавливаем Content-Type - браузер установит автоматически с boundary
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorData: {code?: string; message?: string} | undefined;
+
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        // Игнорируем ошибку парсинга
+      }
+
+      const errorMessage = errorData?.message ?? errorText;
+      throw new Error(`Ошибка API (${response.status}): ${errorMessage}`);
+    }
+
+    return (await response.json()) as UploadApkFileResponse;
   }
 }
 

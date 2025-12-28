@@ -5,7 +5,11 @@
 
 import {Command} from 'commander';
 import {loginCommand, logoutCommand, whoamiCommand} from './commands/auth.js';
-import {listAppsCommand, createDraftVersionCommand} from './commands/apps.js';
+import {
+  listAppsCommand,
+  createDraftVersionCommand,
+  uploadApkFileCommand,
+} from './commands/apps.js';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -166,6 +170,27 @@ appsCommand
         options.appId,
         options.versionName,
         options.versionCode,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('upload-apk')
+  .description('Загрузить APK/AAB файл для версии приложения')
+  .requiredOption('--app-id <id>', 'ID приложения', parseInt)
+  .requiredOption('--version-id <id>', 'ID версии (из create-draft)', parseInt)
+  .requiredOption('--file <path>', 'Путь к APK/AAB файлу')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await uploadApkFileCommand(
+        options.appId,
+        options.versionId,
+        options.file,
         options.json,
       );
     } catch (error) {

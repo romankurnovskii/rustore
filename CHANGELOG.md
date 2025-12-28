@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# 1.0.1 (2025-01-27)
+# 1.0.1
 
 ## Features
 
@@ -29,19 +29,3 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - 🔧 Добавлена поддержка `allowUnknownOption()` для автоматической поддержки будущих параметров API
 - 🔧 Улучшена типизация: добавлены дополнительные поля в интерфейс `App`
 - 🔧 Добавлена индексная сигнатура `[key: string]` для поддержки произвольных параметров API
-
-<!--
-
-# 1.0.0 (2023-04-07)
-
-## Breaking changes
-
-## Features
-
-## Bug Fixes
-
-- correct the types
-
-## Reverts
-
--->

@@ -143,3 +143,40 @@ export async function createDraftVersionCommand(
     );
   }
 }
+
+/**
+ * Команда загрузки APK/AAB файла
+ */
+export async function uploadApkFileCommand(
+  appId: number,
+  versionId: number,
+  filePath: string,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.uploadApkFile(appId, versionId, filePath);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ APK/AAB файл успешно загружен!');
+      if (response.body) {
+        console.log(`   ID файла: ${response.body.fileId || 'N/A'}`);
+        console.log(`   Имя файла: ${response.body.fileName || 'N/A'}`);
+        if (response.body.fileSize) {
+          const sizeMB = (response.body.fileSize / (1024 * 1024)).toFixed(2);
+          console.log(`   Размер: ${sizeMB} MB`);
+        }
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка загрузки APK файла: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
