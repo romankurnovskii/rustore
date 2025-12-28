@@ -5,7 +5,7 @@
 
 import {Command} from 'commander';
 import {loginCommand, logoutCommand, whoamiCommand} from './commands/auth.js';
-import {listAppsCommand} from './commands/apps.js';
+import {listAppsCommand, createDraftVersionCommand} from './commands/apps.js';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -147,6 +147,27 @@ appsCommand
       // Благодаря индексной сигнатуре [key: string] в listAppsCommand,
       // все новые параметры API будут автоматически переданы в запрос
       await listAppsCommand({...options, ...unknownOptions});
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('create-draft')
+  .description('Создать черновую версию приложения')
+  .requiredOption('--app-id <id>', 'ID приложения', parseInt)
+  .requiredOption('--version-name <name>', 'Имя версии (например, 1.0.0)')
+  .requiredOption('--version-code <code>', 'Код версии (число)', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await createDraftVersionCommand(
+        options.appId,
+        options.versionName,
+        options.versionCode,
+        options.json,
+      );
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);

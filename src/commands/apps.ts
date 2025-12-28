@@ -3,7 +3,7 @@
  */
 
 import {appsApi} from '../api/apps.js';
-import type {App} from '../types.js';
+import type {App, CreateDraftVersionRequest} from '../types.js';
 
 /**
  * Команда получения списка приложений
@@ -103,4 +103,43 @@ function outputApps(apps: App[], json: boolean = false): void {
     }
     console.log('');
   });
+}
+
+/**
+ * Команда создания черновой версии приложения
+ */
+export async function createDraftVersionCommand(
+  appId: number,
+  versionName: string,
+  versionCode: number,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const data: CreateDraftVersionRequest = {
+      versionName,
+      versionCode,
+    };
+
+    const response = await appsApi.createDraftVersion(appId, data);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Черновая версия успешно создана!');
+      if (response.body) {
+        console.log(`   ID версии: ${response.body.versionId || 'N/A'}`);
+        console.log(`   Имя версии: ${response.body.versionName || versionName}`);
+        console.log(`   Код версии: ${response.body.versionCode || versionCode}`);
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка создания черновой версии: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }

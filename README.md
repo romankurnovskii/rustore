@@ -83,6 +83,12 @@ rustore apps list --all --json
 # Фильтрация с JSON выводом
 rustore apps list --app-name "MyApp" --json
 rustore apps list --app-status PUBLISHED --json
+
+# Создать черновую версию приложения
+rustore apps create-draft --app-id 123456 --version-name "1.0.0" --version-code 1
+
+# Создать черновую версию с JSON выводом
+rustore apps create-draft --app-id 123456 --version-name "2.0.0" --version-code 2 --json
 ```
 
 **💡 Совет:** Флаг `--json` полезен для:
@@ -214,6 +220,12 @@ console.log(appsResponse.body.content);
 
 // Получить все приложения (с автоматической пагинацией)
 const allApps = await appsApi.getAllApps();
+
+// Создать черновую версию приложения
+const draftVersion = await appsApi.createDraftVersion(123456, {
+  versionName: '1.0.0',
+  versionCode: 1,
+});
 
 // Использование других API категорий
 // await paymentsApi.refund(...);

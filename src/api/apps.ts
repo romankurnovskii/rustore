@@ -4,7 +4,13 @@
  */
 
 import {RustoreApiClient} from './client.js';
-import type {GetAppListResponse, App, GetAppListOptions} from '../types.js';
+import type {
+  GetAppListResponse,
+  App,
+  GetAppListOptions,
+  CreateDraftVersionRequest,
+  CreateDraftVersionResponse,
+} from '../types.js';
 
 /**
  * Клиент для работы с приложениями
@@ -67,6 +73,26 @@ export class AppsApi extends RustoreApiClient {
     } while (continuationToken);
 
     return allApps;
+  }
+
+  /**
+   * Создать черновую версию приложения
+   * POST /public/v1/application/{appId}/draft-version
+   *
+   * Метод позволяет создать черновую версию приложения для последующей загрузки APK/AAB.
+   *
+   * @param appId - ID приложения
+   * @param data - Данные для создания черновой версии (versionName, versionCode)
+   * @returns Информация о созданной черновой версии
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+   */
+  async createDraftVersion(
+    appId: number,
+    data: CreateDraftVersionRequest,
+  ): Promise<CreateDraftVersionResponse> {
+    const endpoint = `/public/v1/application/${appId}/draft-version`;
+    return this.post<CreateDraftVersionResponse>(endpoint, data);
   }
 }
 

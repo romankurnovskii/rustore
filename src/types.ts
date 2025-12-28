@@ -83,3 +83,28 @@ export interface GetAppListOptions {
   paid?: boolean;
   [key: string]: string | number | boolean | undefined;
 }
+
+/**
+ * Параметры для создания черновой версии приложения
+ * POST /public/v1/application/{appId}/draft-version
+ */
+export interface CreateDraftVersionRequest {
+  versionName: string;
+  versionCode: number;
+  [key: string]: unknown; // Для поддержки будущих полей API
+}
+
+/**
+ * Ответ на создание черновой версии приложения
+ */
+export interface CreateDraftVersionResponse {
+  code: string;
+  message?: string;
+  body?: {
+    versionId?: number;
+    versionName?: string;
+    versionCode?: number;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}

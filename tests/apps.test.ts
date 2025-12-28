@@ -49,5 +49,53 @@ describe('Apps API', () => {
       const api = new AppsApi();
       expect(typeof api.getAllApps).toBe('function');
     });
+
+    it('должен иметь метод createDraftVersion', () => {
+      const api = new AppsApi();
+      expect(typeof api.createDraftVersion).toBe('function');
+    });
   });
+
+  it('должен проверять доступность endpoint создания черновой версии', async () => {
+    // Проверяем, что endpoint отвечает (может вернуть 404, 401, 403 или другой статус)
+    // Используем тестовый appId
+    const testAppId = 123456;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testAppId}/draft-version`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          versionName: '1.0.0',
+          versionCode: 1,
+        }),
+      },
+    );
+
+    // Endpoint должен отвечать (любой статус кроме сетевых ошибок)
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен возвращать ошибку без токена при создании черновой версии', async () => {
+    const testAppId = 123456;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testAppId}/draft-version`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          versionName: '1.0.0',
+          versionCode: 1,
+        }),
+      },
+    );
+
+    // Без авторизации должен вернуть ошибку (401, 403, 404 или другой код ошибки)
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  }, 10000);
 });
