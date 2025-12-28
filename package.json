@@ -1,18 +1,22 @@
 {
-  "name": "package-name",
-  "version": "1.0.0",
-  "description": "DESCRIPTION",
+  "name": "rustore",
+  "version": "1.0.1",
+  "description": "CLI для работы с RuStore API",
   "license": "MIT",
-  "homepage": "https://github.com/romankurnovskii/PACKAGE_NAME#readme",
+  "homepage": "https://github.com/romankurnovskii/rustore#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/romankurnovskii/PACKAGE_NAME.git"
+    "url": "git+https://github.com/romankurnovskii/rustore.git"
   },
   "bugs": {
-    "url": "https://github.com/romankurnovskii/PACKAGE_NAME/issues"
+    "url": "https://github.com/romankurnovskii/rustore/issues"
   },
   "keywords": [
-    "npm-module"
+    "rustore",
+    "api",
+    "cli",
+    "russia",
+    "app-store"
   ],
   "author": {
     "name": "Roman Kurnovskii",
@@ -29,7 +33,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "package-name": "./dist/bin.js"
+    "rustore": "./dist/bin.js"
   },
   "scripts": {
     "start": "tsx src/bin.ts",
@@ -45,22 +49,16 @@
     "prepare": "husky",
     "prepublishOnly": "npm run type-check && npm run build && npm test && npm run format:check && npm run lint"
   },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  },
   "files": [
     "dist",
     "LICENSE",
     "README.md"
   ],
   "dependencies": {
-    "commander": "^14.0.2",
-    "eslint-plugin-prettier": "^5.5.4"
+    "commander": "^14.0.2"
   },
   "devDependencies": {
+    "eslint-plugin-prettier": "^5.5.4",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.3",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
@@ -77,5 +75,11 @@
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

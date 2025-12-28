@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 
+# lint-staged проверяет и исправляет только измененные файлы
+# (включает eslint --fix и prettier --write для staged файлов)
 npx lint-staged
-npm run test
+
+# Быстрая проверка типов TypeScript
+npm run type-check

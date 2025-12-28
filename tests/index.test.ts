@@ -1,9 +1,8 @@
-import { hello } from '../src';
+import {loadConfig, saveConfig} from '../src/config.js';
 
-describe('Init test', () => {
-  it('verify hello function', () => {
-    const expected = true;
-    const { result } = hello();
-    expect(result).toBe(expected);
+describe('Index exports', () => {
+  it('должен экспортировать функции конфигурации', () => {
+    expect(typeof loadConfig).toBe('function');
+    expect(typeof saveConfig).toBe('function');
   });
 });
