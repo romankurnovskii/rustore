@@ -97,6 +97,34 @@ rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.ap
 rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.aab --json
 ```
 
+### Работа с отзывами
+
+```sh
+# Получить отзывы приложения
+rustore feedback list --package-name com.example.app
+
+# Получить все отзывы (с пагинацией)
+rustore feedback list --package-name com.example.app --all
+
+# Получить отзывы в JSON формате
+rustore feedback list --package-name com.example.app --json
+
+# Оставить ответ на отзыв
+rustore feedback answer --package-name com.example.app --comment-id 123456 --text "Спасибо за отзыв!"
+
+# Получить статус ответа на отзыв
+rustore feedback status --package-name com.example.app --feedback-id 789
+
+# Получить все ответы на отзывы
+rustore feedback status --package-name com.example.app
+
+# Изменить ответ на отзыв
+rustore feedback update --package-name com.example.app --feedback-id 789 --text "Обновлённый ответ"
+
+# Удалить ответ на отзыв
+rustore feedback delete --package-name com.example.app --feedback-id 789
+```
+
 **💡 Совет:** Флаг `--json` полезен для:
 
 - Автоматизации и скриптов
@@ -215,7 +243,7 @@ API организовано по категориям, как в докумен
 ### Программный доступ
 
 ```typescript
-import {login, appsApi, paymentsApi, catalogApi} from 'rustore';
+import {login, appsApi, paymentsApi, catalogApi, feedbackApi} from 'rustore';
 
 // Авторизация
 await login('keyId', 'privateKey');
@@ -239,6 +267,17 @@ const uploadResult = await appsApi.uploadApkFile(
   draftVersion.body?.versionId || 789,
   './app-release.apk',
 );
+
+// Получить отзывы приложения
+const feedbackResponse = await feedbackApi.getFeedback('com.example.app');
+
+// Оставить ответ на отзыв
+const answerResponse = await feedbackApi.createFeedbackAnswer('com.example.app', 123456, {
+  text: 'Спасибо за отзыв!',
+});
+
+// Получить статус ответа на отзыв
+const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.app', 789);
 
 // Использование других API категорий
 // await paymentsApi.refund(...);

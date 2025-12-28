@@ -10,6 +10,13 @@ import {
   createDraftVersionCommand,
   uploadApkFileCommand,
 } from './commands/apps.js';
+import {
+  getFeedbackCommand,
+  createFeedbackAnswerCommand,
+  getFeedbackAnswerStatusCommand,
+  updateFeedbackAnswerCommand,
+  deleteFeedbackAnswerCommand,
+} from './commands/feedback.js';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -191,6 +198,111 @@ appsCommand
         options.appId,
         options.versionId,
         options.file,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+// Команды для работы с отзывами
+const feedbackCommand = program
+  .command('feedback')
+  .description('Работа с отзывами приложений');
+
+feedbackCommand
+  .command('list')
+  .description('Получить отзывы приложения')
+  .requiredOption('--package-name <name>', 'Package name приложения')
+  .option('-a, --all', 'Получить все отзывы (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      await getFeedbackCommand(options.packageName, options);
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+feedbackCommand
+  .command('answer')
+  .description('Оставить ответ на отзыв')
+  .requiredOption('--package-name <name>', 'Package name приложения')
+  .requiredOption('--comment-id <id>', 'ID отзыва', parseInt)
+  .requiredOption('--text <text>', 'Текст ответа')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await createFeedbackAnswerCommand(
+        options.packageName,
+        options.commentId,
+        options.text,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+feedbackCommand
+  .command('status')
+  .description('Получить статус ответа на отзыв')
+  .requiredOption('--package-name <name>', 'Package name приложения')
+  .option(
+    '--feedback-id <id>',
+    'ID ответа на отзыв (если не указан - все ответы)',
+    parseInt,
+  )
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await getFeedbackAnswerStatusCommand(
+        options.packageName,
+        options.feedbackId,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+feedbackCommand
+  .command('update')
+  .description('Изменить ответ на отзыв')
+  .requiredOption('--package-name <name>', 'Package name приложения')
+  .requiredOption('--feedback-id <id>', 'ID ответа на отзыв', parseInt)
+  .requiredOption('--text <text>', 'Новый текст ответа')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await updateFeedbackAnswerCommand(
+        options.packageName,
+        options.feedbackId,
+        options.text,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+feedbackCommand
+  .command('delete')
+  .description('Удалить ответ на отзыв')
+  .requiredOption('--package-name <name>', 'Package name приложения')
+  .requiredOption('--feedback-id <id>', 'ID ответа на отзыв', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await deleteFeedbackAnswerCommand(
+        options.packageName,
+        options.feedbackId,
         options.json,
       );
     } catch (error) {

@@ -124,3 +124,121 @@ export interface UploadApkFileResponse {
   };
   timestamp: string;
 }
+
+/**
+ * Типы для работы с отзывами (Feedback API)
+ */
+
+/**
+ * Отзыв приложения
+ */
+export interface Feedback {
+  id: number;
+  commentId: number;
+  text?: string;
+  rating?: number;
+  date?: string;
+  userName?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на отзыв
+ */
+export interface FeedbackAnswer {
+  id: number;
+  commentId: number;
+  text: string;
+  status: 'PUBLISHED' | 'MODERATION' | 'REJECTED' | 'DELETED';
+  date: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Параметры для получения отзывов
+ * GET /public/v1/application/{packageName}/feedback
+ */
+export interface GetFeedbackOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на получение отзывов
+ */
+export interface GetFeedbackResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: Feedback[];
+    continuationToken?: string;
+  };
+  timestamp: string;
+}
+
+/**
+ * Параметры для создания ответа на отзыв
+ * POST /public/v1/application/{packageName}/feedback/{commentId}/answer
+ */
+export interface CreateFeedbackAnswerRequest {
+  text: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на создание ответа на отзыв
+ */
+export interface CreateFeedbackAnswerResponse {
+  code: string;
+  message?: string;
+  body?: {
+    id?: number;
+    commentId?: number;
+    text?: string;
+    status?: string;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+/**
+ * Ответ на получение статуса ответа на отзыв
+ * GET /public/v1/application/{packageName}/feedback/{feedbackId}
+ */
+export interface GetFeedbackAnswerStatusResponse {
+  code: string;
+  message?: string;
+  body: FeedbackAnswer[];
+  timestamp: string;
+}
+
+/**
+ * Параметры для изменения ответа на отзыв
+ * PUT /public/v1/application/{packageName}/feedback/{feedbackId}
+ */
+export interface UpdateFeedbackAnswerRequest {
+  text: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на изменение ответа на отзыв
+ */
+export interface UpdateFeedbackAnswerResponse {
+  code: string;
+  message?: string;
+  body?: FeedbackAnswer;
+  timestamp: string;
+}
+
+/**
+ * Ответ на удаление ответа на отзыв
+ * DELETE /public/v1/application/{packageName}/feedback/{feedbackId}
+ */
+export interface DeleteFeedbackAnswerResponse {
+  code: string;
+  message?: string;
+  body?: unknown;
+  timestamp: string;
+}
