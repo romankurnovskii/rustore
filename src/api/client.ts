@@ -1,5 +1,10 @@
 /**
  * Клиент для работы с RuStore API
+ *
+ * Базовый класс для всех API клиентов RuStore.
+ * Предоставляет методы для выполнения авторизованных запросов.
+ *
+ * @see https://www.rustore.ru/help/en/work-with-rustore-api
  */
 
 import {getToken} from './auth.js';

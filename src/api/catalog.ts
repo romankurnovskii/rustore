@@ -1,6 +1,8 @@
 /**
  * API для работы с продуктовым каталогом
  * Категория: API для работы с продуктовым каталогом
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-catalog
  */
 
 import {RustoreApiClient} from './client.js';

@@ -1,6 +1,8 @@
 /**
  * API для работы с платежами и подписками
  * Категория: Работа с платежами и подписками (общие методы)
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions
  */
 
 import {RustoreApiClient} from './client.js';

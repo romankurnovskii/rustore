@@ -1,5 +1,7 @@
 /**
  * Модуль для работы с авторизацией RuStore API
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token
  */
 
 import {createSign} from 'node:crypto';
@@ -80,6 +82,8 @@ export function createAuthRequest(keyId: string, privateKey: string): AuthReques
 
 /**
  * Получает токен авторизации от RuStore API
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token
  */
 export async function getAuthToken(
   keyId: string,
@@ -113,6 +117,10 @@ export async function getAuthToken(
 
 /**
  * Сохраняет токен в конфигурацию
+ *
+ * Выполняет авторизацию и сохраняет полученный токен в конфигурацию.
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token
  */
 export async function login(keyId: string, privateKey: string): Promise<void> {
   const tokenResponse = await getAuthToken(keyId, privateKey);

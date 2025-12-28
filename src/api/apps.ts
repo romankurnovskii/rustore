@@ -1,6 +1,8 @@
 /**
  * API для работы с приложениями
  * Категория: Загрузка и публикация приложений (общие методы)
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app
  */
 
 import {readFileSync} from 'node:fs';
@@ -28,6 +30,8 @@ export class AppsApi extends RustoreApiClient {
    *
    * @param options - Параметры запроса (continuationToken, pageSize, appName и др.)
    * @returns Список приложений
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-app-list
    */
   async getAppList(options?: GetAppListOptions): Promise<GetAppListResponse> {
     // Проверяем, не указан ли endpoint вручную через переменную окружения
@@ -59,8 +63,14 @@ export class AppsApi extends RustoreApiClient {
 
   /**
    * Получить все приложения (с автоматической пагинацией)
+   *
+   * Вспомогательный метод, который автоматически обрабатывает пагинацию
+   * и возвращает все приложения из всех страниц.
+   *
    * @param options - Параметры запроса (pageSize, appName и др., кроме continuationToken)
    * @returns Массив всех приложений
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-app-list
    */
   async getAllApps(
     options?: Omit<GetAppListOptions, 'continuationToken'>,
