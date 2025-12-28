@@ -30,7 +30,7 @@ jobs:
       - name: Upload Assets to Release
         uses: softprops/action-gh-release@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # add write permission https://github.com/romankurnovskii/REPOSITORY/settings/actions
+          GITHUB_TOKEN: ${{ secrets.TOKEN_PR }} # add write permission https://github.com/romankurnovskii/REPOSITORY/settings/actions
         with:
           files: |
             ./dist/rustore-${{ env.VERSION }}.zip
