@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.2
+
+## Features
+
+- ✨ Добавлена поддержка Feedback API для работы с отзывами приложений
+  - Получение отзывов (`feedback list`)
+  - Создание ответа на отзыв (`feedback answer`)
+  - Получение статуса ответа (`feedback status`)
+  - Изменение ответа (`feedback update`)
+  - Удаление ответа (`feedback delete`)
+- ✨ Добавлена поддержка загрузки APK/AAB файлов (`apps upload-apk`)
+- ✨ Добавлена поддержка создания черновой версии приложения (`apps create-draft`)
+- 📚 Добавлены ссылки на документацию API в docstring для всех методов и категорий
+
+## Technical
+
+- 🔧 Добавлена поддержка multipart/form-data для загрузки файлов
+- 🔧 Улучшена типизация: добавлены типы для всех операций с отзывами
+- 🧪 Добавлены тесты для всех новых endpoints
+
 # 1.0.1
 
 ## Features
