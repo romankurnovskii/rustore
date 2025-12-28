@@ -92,10 +92,15 @@ describe('Config Module', () => {
     expect(configExists()).toBe(false);
 
     // Сохраняем конфиг
-    saveConfig({keyId: 'test'});
+    const testConfig = {keyId: 'test'};
+    saveConfig(testConfig);
 
     // Проверяем, что файл действительно создан
-    expect(existsSync(CONFIG_FILE)).toBe(true);
+    // Используем configExists() вместо прямого existsSync для консистентности
     expect(configExists()).toBe(true);
+
+    // Дополнительная проверка через loadConfig
+    const loadedConfig = loadConfig();
+    expect(loadedConfig.keyId).toBe(testConfig.keyId);
   });
 });
