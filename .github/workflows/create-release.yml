@@ -11,7 +11,7 @@ on:
 
 jobs:
   create-release:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # add write permission https://github.com/romankurnovskii/REPOSITORY/settings/actions
         with:
           files: |
-            ./dist/pytree-${{ env.VERSION }}.zip
+            ./dist/rustore-${{ env.VERSION }}.zip
           draft: false
           name: ${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
