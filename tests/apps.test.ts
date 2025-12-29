@@ -59,6 +59,21 @@ describe('Apps API', () => {
       const api = new AppsApi();
       expect(typeof api.uploadApkFile).toBe('function');
     });
+
+    it('должен иметь метод getVersionInfo', () => {
+      const api = new AppsApi();
+      expect(typeof api.getVersionInfo).toBe('function');
+    });
+
+    it('должен иметь метод getVersionList', () => {
+      const api = new AppsApi();
+      expect(typeof api.getVersionList).toBe('function');
+    });
+
+    it('должен иметь метод getAppTagList', () => {
+      const api = new AppsApi();
+      expect(typeof api.getAppTagList).toBe('function');
+    });
   });
 
   it('должен проверять доступность endpoint создания черновой версии', async () => {

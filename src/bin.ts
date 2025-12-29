@@ -10,6 +10,9 @@ import {
   createDraftVersionCommand,
   uploadApkFileCommand,
   sendForModerationCommand,
+  getVersionInfoCommand,
+  getVersionListCommand,
+  getAppTagListCommand,
 } from './commands/apps.js';
 import type {CreateDraftVersionRequest} from './types.js';
 import {
@@ -296,6 +299,108 @@ appsCommand
         options.priorityUpdate,
         options.json,
       );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('version-info')
+  .description('Получить информацию о версии приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await getVersionInfoCommand(options.packageName, options.versionId, options.json);
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('version-list')
+  .description('Получить список версий приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .option('-a, --all', 'Получить все версии (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      // Парсим неизвестные опции для передачи в API
+      const unknownOptions: Record<string, string | number | boolean | undefined> = {};
+      const args = process.argv.slice(process.argv.indexOf('version-list') + 1);
+      for (let i = 0; i < args.length; i += 2) {
+        const arg = args[i];
+        const nextArg = args[i + 1];
+        if (arg?.startsWith('--') && nextArg) {
+          const key = arg.replace('--', '');
+          const value = nextArg;
+          // Пытаемся определить тип значения
+          if (value === 'true' || value === 'false') {
+            unknownOptions[key] = value === 'true';
+          } else if (!isNaN(Number(value))) {
+            unknownOptions[key] = Number(value);
+          } else {
+            unknownOptions[key] = value;
+          }
+        }
+      }
+
+      await getVersionListCommand(options.packageName, {
+        ...options,
+        ...unknownOptions,
+      });
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('tag-list')
+  .description('Получить список тегов приложений')
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .option('-a, --all', 'Получить все теги (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      // Парсим неизвестные опции для передачи в API
+      const unknownOptions: Record<string, string | number | boolean | undefined> = {};
+      const args = process.argv.slice(process.argv.indexOf('tag-list') + 1);
+      for (let i = 0; i < args.length; i += 2) {
+        const arg = args[i];
+        const nextArg = args[i + 1];
+        if (arg?.startsWith('--') && nextArg) {
+          const key = arg.replace('--', '');
+          const value = nextArg;
+          // Пытаемся определить тип значения
+          if (value === 'true' || value === 'false') {
+            unknownOptions[key] = value === 'true';
+          } else if (!isNaN(Number(value))) {
+            unknownOptions[key] = Number(value);
+          } else {
+            unknownOptions[key] = value;
+          }
+        }
+      }
+
+      await getAppTagListCommand({
+        ...options,
+        ...unknownOptions,
+      });
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);

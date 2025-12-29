@@ -18,6 +18,11 @@ import type {
   UploadApkFileOptions,
   SendForModerationResponse,
   SendForModerationOptions,
+  GetVersionInfoResponse,
+  GetVersionListResponse,
+  GetVersionListOptions,
+  GetAppTagListResponse,
+  GetAppTagListOptions,
 } from '../types.js';
 
 /**
@@ -315,6 +320,91 @@ export class AppsApi extends RustoreApiClient {
       : `/public/v1/application/${packageName}/version/${versionId}/commit`;
 
     return this.post<SendForModerationResponse>(endpoint);
+  }
+
+  /**
+   * Получить информацию о версии приложения
+   * GET /public/v1/application/{packageName}/version/{versionId}
+   *
+   * Метод позволяет получить детальную информацию о конкретной версии приложения.
+   *
+   * @param packageName - Имя пакета приложения (например, com.example.app)
+   * @param versionId - ID версии
+   * @returns Информация о версии приложения
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-info
+   */
+  async getVersionInfo(
+    packageName: string,
+    versionId: number,
+  ): Promise<GetVersionInfoResponse> {
+    const endpoint = `/public/v1/application/${packageName}/version/${versionId}`;
+    return this.get<GetVersionInfoResponse>(endpoint);
+  }
+
+  /**
+   * Получить список версий приложения
+   * GET /public/v1/application/{packageName}/version
+   *
+   * Метод позволяет получить список всех версий приложения с поддержкой пагинации.
+   *
+   * @param packageName - Имя пакета приложения (например, com.example.app)
+   * @param options - Параметры запроса (continuationToken, pageSize и др.)
+   * @returns Список версий приложения
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-list
+   */
+  async getVersionList(
+    packageName: string,
+    options?: GetVersionListOptions,
+  ): Promise<GetVersionListResponse> {
+    const endpoint = `/public/v1/application/${packageName}/version`;
+
+    // Формируем query параметры
+    const queryParams = new URLSearchParams();
+    if (options) {
+      Object.entries(options).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, String(value));
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const finalEndpoint = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+    return this.get<GetVersionListResponse>(finalEndpoint);
+  }
+
+  /**
+   * Получить список тегов приложений
+   * GET /public/v1/application/tag
+   *
+   * Метод позволяет получить список доступных тегов для приложений.
+   * Теги используются при создании черновой версии (seoTagIds).
+   *
+   * @param options - Параметры запроса (continuationToken, pageSize и др.)
+   * @returns Список тегов приложений
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-app-tag-list
+   */
+  async getAppTagList(options?: GetAppTagListOptions): Promise<GetAppTagListResponse> {
+    const endpoint = '/public/v1/application/tag';
+
+    // Формируем query параметры
+    const queryParams = new URLSearchParams();
+    if (options) {
+      Object.entries(options).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, String(value));
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const finalEndpoint = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+    return this.get<GetAppTagListResponse>(finalEndpoint);
   }
 }
 

@@ -274,6 +274,93 @@ export interface SendForModerationResponse {
 }
 
 /**
+ * Информация о версии приложения
+ * GET /public/v1/application/{packageName}/version/{versionId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-info
+ */
+export interface VersionInfo {
+  versionId?: number;
+  versionName?: string;
+  versionCode?: number;
+  versionType?: string;
+  status?: string;
+  minAndroidVersion?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос информации о версии
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-info
+ */
+export interface GetVersionInfoResponse {
+  code: string;
+  message?: string;
+  body?: VersionInfo;
+  timestamp: string;
+}
+
+/**
+ * Параметры для получения списка версий
+ * GET /public/v1/application/{packageName}/version
+ */
+export interface GetVersionListOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на запрос списка версий
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-list
+ */
+export interface GetVersionListResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: VersionInfo[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
+ * Тег приложения
+ * GET /public/v1/application/tag
+ */
+export interface AppTag {
+  tagId?: number;
+  tagName?: string;
+  seoTagId?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос списка тегов приложений
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-app-tag-list
+ */
+export interface GetAppTagListResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: AppTag[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
+ * Параметры для получения списка тегов
+ */
+export interface GetAppTagListOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
  * Типы для работы с отзывами (Feedback API)
  */
 

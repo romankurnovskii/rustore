@@ -293,3 +293,236 @@ export async function uploadApkFileCommand(
     );
   }
 }
+
+/**
+ * Команда получения информации о версии приложения
+ *
+ * Получает детальную информацию о конкретной версии приложения.
+ *
+ * @param packageName - Имя пакета приложения (например, com.example.app)
+ * @param versionId - ID версии
+ * @param json - Вывести результат в формате JSON
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-info
+ */
+export async function getVersionInfoCommand(
+  packageName: string,
+  versionId: number,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.getVersionInfo(packageName, versionId);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Информация о версии:');
+      if (response.body) {
+        Object.entries(response.body).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            console.log(`   ${key}: ${JSON.stringify(value)}`);
+          }
+        });
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка получения информации о версии: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда получения списка версий приложения
+ *
+ * Получает список всех версий приложения с поддержкой пагинации.
+ *
+ * @param packageName - Имя пакета приложения (например, com.example.app)
+ * @param options - Параметры запроса (all, json, pageSize, continuationToken)
+ * @param json - Вывести результат в формате JSON
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-list
+ */
+export async function getVersionListCommand(
+  packageName: string,
+  options: {
+    all?: boolean;
+    json?: boolean;
+    pageSize?: number;
+    continuationToken?: string;
+    [key: string]: string | number | boolean | undefined;
+  },
+): Promise<void> {
+  try {
+    // Извлекаем API параметры из options
+    const apiOptions: {
+      pageSize?: number;
+      continuationToken?: string;
+      [key: string]: string | number | undefined;
+    } = {};
+
+    // Копируем только API параметры (исключаем CLI опции)
+    const cliOptions = ['all', 'json'];
+    Object.entries(options).forEach(([key, value]) => {
+      if (!cliOptions.includes(key) && value !== undefined) {
+        apiOptions[key] = value as string | number;
+      }
+    });
+
+    if (options.all) {
+      // Получаем все версии с пагинацией
+      const allVersions: unknown[] = [];
+      let continuationToken: string | undefined;
+
+      do {
+        const response = await appsApi.getVersionList(packageName, {
+          ...apiOptions,
+          continuationToken,
+        });
+        allVersions.push(...response.body.content);
+        continuationToken = response.body.continuationToken;
+      } while (continuationToken);
+
+      if (options.json) {
+        console.log(JSON.stringify({code: 'OK', body: {content: allVersions}}, null, 2));
+      } else {
+        console.log(`✅ Найдено версий: ${allVersions.length}`);
+        allVersions.forEach((version, index) => {
+          console.log(`\nВерсия ${index + 1}:`);
+          Object.entries(version as Record<string, unknown>).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+              console.log(`   ${key}: ${JSON.stringify(value)}`);
+            }
+          });
+        });
+      }
+    } else {
+      const response = await appsApi.getVersionList(packageName, apiOptions);
+
+      if (options.json) {
+        console.log(JSON.stringify(response, null, 2));
+      } else {
+        if (response.code === 'OK' || response.code === '200') {
+          console.log(`✅ Найдено версий: ${response.body.content.length}`);
+          response.body.content.forEach((version, index) => {
+            console.log(`\nВерсия ${index + 1}:`);
+            Object.entries(version).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                console.log(`   ${key}: ${JSON.stringify(value)}`);
+              }
+            });
+          });
+          if (response.body.continuationToken) {
+            console.log(
+              `\n💡 Есть ещё версии. Используйте --all для получения всех версий.`,
+            );
+          }
+        } else {
+          throw new Error(response.message || 'Неизвестная ошибка');
+        }
+      }
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка получения списка версий: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда получения списка тегов приложений
+ *
+ * Получает список доступных тегов для приложений.
+ * Теги используются при создании черновой версии (seoTagIds).
+ *
+ * @param options - Параметры запроса (all, json, pageSize, continuationToken)
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-app-tag-list
+ */
+export async function getAppTagListCommand(options: {
+  all?: boolean;
+  json?: boolean;
+  pageSize?: number;
+  continuationToken?: string;
+  [key: string]: string | number | boolean | undefined;
+}): Promise<void> {
+  try {
+    // Извлекаем API параметры из options
+    const apiOptions: {
+      pageSize?: number;
+      continuationToken?: string;
+      [key: string]: string | number | undefined;
+    } = {};
+
+    // Копируем только API параметры (исключаем CLI опции)
+    const cliOptions = ['all', 'json'];
+    Object.entries(options).forEach(([key, value]) => {
+      if (!cliOptions.includes(key) && value !== undefined) {
+        apiOptions[key] = value as string | number;
+      }
+    });
+
+    if (options.all) {
+      // Получаем все теги с пагинацией
+      const allTags: unknown[] = [];
+      let continuationToken: string | undefined;
+
+      do {
+        const response = await appsApi.getAppTagList({
+          ...apiOptions,
+          continuationToken,
+        });
+        allTags.push(...response.body.content);
+        continuationToken = response.body.continuationToken;
+      } while (continuationToken);
+
+      if (options.json) {
+        console.log(JSON.stringify({code: 'OK', body: {content: allTags}}, null, 2));
+      } else {
+        console.log(`✅ Найдено тегов: ${allTags.length}`);
+        allTags.forEach((tag, index) => {
+          console.log(`\nТег ${index + 1}:`);
+          Object.entries(tag as Record<string, unknown>).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+              console.log(`   ${key}: ${JSON.stringify(value)}`);
+            }
+          });
+        });
+      }
+    } else {
+      const response = await appsApi.getAppTagList(apiOptions);
+
+      if (options.json) {
+        console.log(JSON.stringify(response, null, 2));
+      } else {
+        if (response.code === 'OK' || response.code === '200') {
+          console.log(`✅ Найдено тегов: ${response.body.content.length}`);
+          response.body.content.forEach((tag, index) => {
+            console.log(`\nТег ${index + 1}:`);
+            Object.entries(tag).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                console.log(`   ${key}: ${JSON.stringify(value)}`);
+              }
+            });
+          });
+          if (response.body.continuationToken) {
+            console.log(
+              `\n💡 Есть ещё теги. Используйте --all для получения всех тегов.`,
+            );
+          }
+        } else {
+          throw new Error(response.message || 'Неизвестная ошибка');
+        }
+      }
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка получения списка тегов: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
