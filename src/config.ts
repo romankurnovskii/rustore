@@ -43,9 +43,21 @@ export function saveConfig(config: Config): void {
     const mergedConfig = {...existingConfig, ...config};
 
     writeFileSync(CONFIG_FILE, JSON.stringify(mergedConfig, null, 2), 'utf-8');
+
+    // Проверяем, что файл действительно был сохранен
+    if (!existsSync(CONFIG_FILE)) {
+      throw new Error(
+        `Файл конфигурации не был создан по пути: ${CONFIG_FILE}. Проверьте права доступа.`,
+      );
+    }
+
+    if (process.env.DEBUG) {
+      console.error(`[DEBUG] Config saved to: ${CONFIG_FILE}`);
+    }
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Ошибка сохранения конфигурации: ${error instanceof Error ? error.message : String(error)}`,
+      `Ошибка сохранения конфигурации: ${errorMessage}\nПуть: ${CONFIG_FILE}\nДиректория существует: ${existsSync(CONFIG_DIR)}`,
     );
   }
 }

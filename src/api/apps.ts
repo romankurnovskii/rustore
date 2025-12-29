@@ -5,7 +5,7 @@
  * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app
  */
 
-import {readFileSync} from 'node:fs';
+import {readFileSync, existsSync, statSync} from 'node:fs';
 import {RustoreApiClient} from './client.js';
 import {getToken} from './auth.js';
 import type {
@@ -16,6 +16,8 @@ import type {
   CreateDraftVersionResponse,
   UploadApkFileResponse,
   UploadApkFileOptions,
+  SendForModerationResponse,
+  SendForModerationOptions,
 } from '../types.js';
 
 /**
@@ -166,14 +168,83 @@ export class AppsApi extends RustoreApiClient {
       );
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Public-Token': token,
-        // Не устанавливаем Content-Type - fetch установит автоматически с boundary
-      },
-      body: formData,
-    });
+    // Проверяем, что файл существует и доступен для чтения
+    if (!existsSync(filePath)) {
+      throw new Error(`Файл не найден: ${filePath}`);
+    }
+
+    const fileStats = statSync(filePath);
+    if (process.env.DEBUG) {
+      console.error(
+        `[DEBUG] File size: ${(fileStats.size / (1024 * 1024)).toFixed(2)} MB`,
+      );
+      console.error(`[DEBUG] File readable: ${fileStats.mode & 0o444 ? 'yes' : 'no'}`);
+    }
+
+    // Для больших файлов может потребоваться больше времени
+    // Используем AbortController с увеличенным таймаутом (30 минут для файлов до 5 ГБ)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30 * 60 * 1000); // 30 минут
+
+    let response: Response;
+    try {
+      if (process.env.DEBUG) {
+        console.error(`[DEBUG] Starting fetch request to: ${url}`);
+        console.error(
+          `[DEBUG] FormData entries count: ${formData instanceof FormData ? 'N/A (FormData)' : '0'}`,
+        );
+      }
+
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Public-Token': token,
+          // Не устанавливаем Content-Type - fetch установит автоматически с boundary
+        },
+        body: formData,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+
+      if (process.env.DEBUG) {
+        console.error(`[DEBUG] Fetch error details:`, {
+          name: fetchError instanceof Error ? fetchError.name : 'Unknown',
+          message: fetchError instanceof Error ? fetchError.message : String(fetchError),
+          stack: fetchError instanceof Error ? fetchError.stack : undefined,
+          cause: fetchError instanceof Error ? fetchError.cause : undefined,
+        });
+      }
+
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error(
+          'Таймаут загрузки файла. Файл слишком большой или соединение прервано.',
+        );
+      }
+
+      // Более детальная информация об ошибке
+      const errorMessage =
+        fetchError instanceof Error ? fetchError.message : String(fetchError);
+      const errorName = fetchError instanceof Error ? fetchError.name : 'UnknownError';
+
+      // Проверяем, является ли это сетевой ошибкой
+      if (errorName === 'TypeError' && errorMessage.includes('fetch failed')) {
+        throw new Error(
+          `Ошибка сетевого соединения при загрузке файла.\n` +
+            `Детали: ${errorMessage}\n` +
+            `URL: ${url}\n` +
+            `Размер файла: ${(fileStats.size / (1024 * 1024)).toFixed(2)} MB\n` +
+            `Проверьте:\n` +
+            `  1. Интернет-соединение\n` +
+            `  2. Доступность API (https://public-api.rustore.ru)\n` +
+            `  3. Размер файла (максимальный размер может быть ограничен)\n` +
+            `  4. Токен авторизации (выполните 'rustore login' если необходимо)`,
+        );
+      }
+
+      throw new Error(`Ошибка загрузки файла (${errorName}): ${errorMessage}`);
+    }
 
     // Получаем текст ответа для логирования и парсинга
     const responseText = await response.text();
@@ -212,6 +283,38 @@ export class AppsApi extends RustoreApiClient {
       }
       throw new Error(`Ошибка парсинга ответа API: ${responseText}`);
     }
+  }
+
+  /**
+   * Отправить черновую версию приложения на модерацию
+   * POST /public/v1/application/{packageName}/version/{versionId}/commit
+   *
+   * Метод для отправки на модерацию черновика версии приложения.
+   * Перед отправкой убедитесь, что загружен хотя бы один основной APK-файл.
+   *
+   * @param packageName - Имя пакета приложения (например, com.example.app)
+   * @param versionId - ID версии (полученный из createDraftVersion)
+   * @param options - Параметры отправки (priorityUpdate - опциональный, от 0 до 5)
+   * @returns Информация об отправке на модерацию
+   *
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/send-draft-app-for-moderation
+   */
+  async sendForModeration(
+    packageName: string,
+    versionId: number,
+    options?: SendForModerationOptions,
+  ): Promise<SendForModerationResponse> {
+    const queryParams = new URLSearchParams();
+    if (options?.priorityUpdate !== undefined) {
+      queryParams.append('priorityUpdate', String(options.priorityUpdate));
+    }
+
+    const queryString = queryParams.toString();
+    const endpoint = queryString
+      ? `/public/v1/application/${packageName}/version/${versionId}/commit?${queryString}`
+      : `/public/v1/application/${packageName}/version/${versionId}/commit`;
+
+    return this.post<SendForModerationResponse>(endpoint);
   }
 }
 

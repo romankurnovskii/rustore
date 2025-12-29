@@ -3,21 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.4
+
+## Documentation
+
+- 📖 Реорганизована структура документации: переведённые README перемещены в `docs/about/`
+- 📖 Обновлены перекрёстные ссылки между всеми языковыми версиями README (RU, EN, HI, ZH)
+- 📖 Добавлены ссылки на `TODO_API_ENDPOINTS.md` и руководство по отправке APK во все README
+- 📖 Переименован `API_ENDPOINTS_TODO.md` → `docs/TODO_API_ENDPOINTS.md`
+- 📖 Переименован `docs/how-to-upload-apk.md` → `docs/how-to-submit-apk-for-production.md`
+
+## Technical
+
+- 🔧 Улучшена обработка ошибок загрузки файлов с проверкой существования и доступности
+- 🧪 Протестирован и подтверждён полный workflow публикации APK (create-draft → upload-apk → send-for-moderation)
+
 # 1.0.3
 
 ## Features
 
+- ✨ Добавлена команда `apps send-for-moderation` для отправки черновой версии на модерацию
 - ✨ Исправлена обработка ответа API для `createDraftVersion` - теперь корректно извлекается `versionId` из поля `body` (которое является числом, а не объектом)
 - 📚 Добавлены ссылки на документацию API во все docstrings
-- 📖 Обновлена документация `docs/how-to-upload-apk.md` с правильной структурой ответа API и ссылками на документацию
+- 📖 Обновлена документация `docs/how-to-submit-apk-for-production.md` (переименовано из `how-to-upload-apk.md`) с правильной структурой ответа API и ссылками на документацию
+- 📖 Добавлен раздел "Шаг 5: Отправьте на модерацию" в документацию
+
+## Bug Fixes
+
+- 🐛 Исправлена ошибка `fetch failed` при загрузке больших APK файлов - улучшена обработка ошибок с детальными сообщениями
+- 🐛 Исправлена команда `feedback list` - исключен `packageName` из query параметров
 
 ## Technical
 
 - 🔧 Улучшено логирование в режиме DEBUG - теперь выводится полный ответ API (статус, заголовки, тело)
+- 🔧 Добавлены проверки существования и доступности файла перед загрузкой
+- 🔧 Улучшена обработка ошибок загрузки файлов с детальной диагностикой
 - 🔧 Исправлена типизация `CreateDraftVersionResponse` - `body` может быть как числом, так и объектом
 - 🔧 Упрощен CLI - параметры передаются напрямую без конвертации (используются те же имена, что и в API)
 - 🔧 Исправлен endpoint для `createDraftVersion` - использует `packageName` вместо `appId`
 - 🔧 Исправлен endpoint для `uploadApkFile` - использует `/apk` вместо `/apk-file` и правильные query параметры
+- 🧪 Протестирован полный workflow публикации APK: create-draft → upload-apk → send-for-moderation
 
 # 1.0.2
 

@@ -1,6 +1,15 @@
-# Как загрузить APK файл в RuStore
+# Как отправить APK файл в продакшн RuStore
 
-Простая пошаговая инструкция по загрузке APK файла через CLI rustore.
+Пошаговая инструкция по публикации APK файла в продакшн через CLI rustore.
+
+**Полный workflow:**
+
+1. Авторизация
+2. Поиск packageName приложения
+3. Создание черновой версии
+4. Загрузка APK файла
+5. Отправка на модерацию
+6. Проверка результата
 
 ## Предварительные требования
 
@@ -145,8 +154,43 @@ rustore apps upload-apk \
   --servicesType HMS
 ```
 
-## Шаг 5: Проверьте результат
+## Шаг 5: Отправьте на модерацию
 
+После успешной загрузки APK файла отправьте черновую версию на модерацию.
+
+**Ссылка на документацию API:**
+
+- [Отправка черновой версии на модерацию](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/send-draft-app-for-moderation)
+
+```sh
+rustore apps send-for-moderation \
+  --packageName com.example.app \
+  --versionId 2064432562
+```
+
+**С приоритетом обновления:**
+
+```sh
+rustore apps send-for-moderation \
+  --packageName com.example.app \
+  --versionId 2064432562 \
+  --priorityUpdate 5
+```
+
+**Параметры:**
+
+- `--packageName` - имя пакета приложения (то же, что использовали ранее)
+- `--versionId` - ID версии, полученный на шаге 3
+- `--priorityUpdate` (опционально) - приоритет обновления от 0 до 5 (0 - минимальный, 5 - максимальный)
+
+**Важно:** Перед отправкой на модерацию убедитесь, что:
+
+- Загружен хотя бы один основной APK-файл (с `isMainApk=true`)
+- Если загружены только HMS APK-файлы, нужно также загрузить основной не-HMS APK
+
+## Шаг 6: Проверьте результат
+
+**После загрузки APK:**
 Если загрузка прошла успешно, вы увидите:
 
 ```
@@ -155,6 +199,16 @@ rustore apps upload-apk \
    Имя файла: app-release.apk
    Размер: 95.23 MB
 ```
+
+**После отправки на модерацию:**
+Если отправка прошла успешно, вы увидите:
+
+```
+✅ Черновая версия успешно отправлена на модерацию!
+   Приложение будет проверено модераторами RuStore.
+```
+
+После этого приложение будет проверено модераторами RuStore. Статус модерации можно проверить в [RuStore Консоль](https://console.rustore.ru).
 
 ## Полный пример (от начала до конца)
 
@@ -183,6 +237,11 @@ rustore apps upload-apk \
   --versionId $(cat draft.json | jq -r '.body') \
   --file ./app-release.apk \
   --isMainApk true
+
+# 5. Отправить на модерацию
+rustore apps send-for-moderation \
+  --packageName com.dailyfive.fitness \
+  --versionId $(cat draft.json | jq -r '.body')
 ```
 
 ## Частые ошибки и решения
@@ -221,6 +280,27 @@ rustore apps upload-apk \
 
 **Решение:** Проверьте `packageName` в списке приложений командой `rustore apps list`.
 
+### Ошибка: "Version must have at least one main non-HMS apk-file"
+
+**Причина:** Не загружен основной APK-файл с сервисом отличным от HMS.
+
+**Решение:**
+
+- Убедитесь, что вы загрузили хотя бы один APK с `isMainApk=true` и `servicesType=Unknown` (или без указания servicesType)
+- Если загружены только HMS APK-файлы, нужно также загрузить основной не-HMS APK
+
+### Ошибка: "Version must have not only HMS apk-file"
+
+**Причина:** Загружены только HMS APK-файлы.
+
+**Решение:** Загрузите хотя бы один основной APK-файл с `servicesType=Unknown` или без указания servicesType.
+
+### Ошибка: "Packages for version with id = X is not found"
+
+**Причина:** Не загружен APK файл для версии.
+
+**Решение:** Убедитесь, что вы загрузили APK файл перед отправкой на модерацию.
+
 ## Полезные команды
 
 ```sh
@@ -236,10 +316,16 @@ rustore logout
 # Получить справку по команде
 rustore apps create-draft --help
 rustore apps upload-apk --help
+rustore apps send-for-moderation --help
+
+# Проверить статус модерации (через RuStore Консоль)
+# https://console.rustore.ru
 ```
 
 ## Дополнительная информация
 
 - [Документация RuStore API](https://www.rustore.ru/help/work-with-rustore-api)
+- [Загрузка и публикация приложений (общие методы)](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app)
 - [Создание черновой версии приложения](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version)
 - [Загрузка APK файла](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk)
+- [Отправка черновой версии на модерацию](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/send-draft-app-for-moderation)

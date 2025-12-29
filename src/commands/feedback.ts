@@ -26,8 +26,8 @@ export async function getFeedbackCommand(
       [key: string]: string | number | undefined;
     } = {};
 
-    // Копируем только API параметры (исключаем CLI опции)
-    const cliOptions = ['all', 'json'];
+    // Копируем только API параметры (исключаем CLI опции и packageName)
+    const cliOptions = ['all', 'json', 'packageName', 'package-name'];
     Object.entries(options).forEach(([key, value]) => {
       if (!cliOptions.includes(key) && value !== undefined) {
         apiOptions[key] = value as string | number;

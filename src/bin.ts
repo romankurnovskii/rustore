@@ -9,6 +9,7 @@ import {
   listAppsCommand,
   createDraftVersionCommand,
   uploadApkFileCommand,
+  sendForModerationCommand,
 } from './commands/apps.js';
 import type {CreateDraftVersionRequest} from './types.js';
 import {
@@ -273,6 +274,34 @@ appsCommand
     }
   });
 
+appsCommand
+  .command('send-for-moderation')
+  .description('Отправить черновую версию приложения на модерацию')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии (из create-draft)', parseInt)
+  .option(
+    '--priorityUpdate <priority>',
+    'Приоритет обновления (0-5, где 0 - минимальный, 5 - максимальный)',
+    parseInt,
+  )
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await sendForModerationCommand(
+        options.packageName,
+        options.versionId,
+        options.priorityUpdate,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
 // Команды для работы с отзывами
 const feedbackCommand = program
   .command('feedback')
@@ -287,7 +316,9 @@ feedbackCommand
   .option('--page-size <size>', 'Размер страницы', parseInt)
   .action(async options => {
     try {
-      await getFeedbackCommand(options.packageName, options);
+      // Извлекаем packageName и передаем остальные опции отдельно
+      const {packageName, ...restOptions} = options;
+      await getFeedbackCommand(packageName, restOptions);
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);

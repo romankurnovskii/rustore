@@ -3,7 +3,7 @@
   <h1>rustore<br>CLI для работы с RuStore API</h1>
   <p>Командная строка для взаимодействия с RuStore API</p>
   <p>
-    <a href="README.en.md">English</a> | <a href="README.md">Русский</a>
+    <a href="docs/about/README.en.md">English</a> | <a href="README.md">Русский</a> | <a href="docs/about/README.hi.md">हिंदी</a> | <a href="docs/about/README.zh.md">中文</a>
   </p>
 </div>
 
@@ -317,6 +317,88 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 - [Документация RuStore API](https://www.rustore.ru/help/en/work-with-rustore-api)
 - [Процесс авторизации](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token)
 - [RuStore Консоль](https://console.rustore.ru/sign-in)
+- [Как отправить APK в продакшн](docs/how-to-submit-apk-for-production.md)
+- [Документация на других языках](docs/about/)
+
+## 📋 TODO: API Endpoints Implementation Status
+
+Статус реализации всех endpoints RuStore API. См. [TODO_API_ENDPOINTS.md](./docs/TODO_API_ENDPOINTS.md) для подробной информации.
+
+### ✅ Реализовано (Implemented & Tested)
+
+#### Authorization (Авторизация)
+
+- ✅ 🧪 Get Authorization Token - `POST /public/auth/`
+
+#### Upload & Publication App (Загрузка и публикация приложений)
+
+- ✅ 🧪 Get App List - `GET /public/v1/application`
+- ✅ 🧪 Create Draft Version - `POST /public/v1/application/{packageName}/version`
+- ✅ 🧪 Upload APK File - `POST /public/v1/application/{packageName}/version/{versionId}/apk`
+- ✅ 🧪 Send Draft for Moderation - `POST /public/v1/application/{packageName}/version/{versionId}/commit`
+
+#### Feedback Process (Работа с отзывами)
+
+- ✅ 🧪 Get Feedback - `GET /public/v1/application/{packageName}/feedback`
+- ✅ 🧪 Create Feedback Answer - `POST /public/v1/application/{packageName}/feedback/{commentId}/answer`
+- ✅ 🧪 Get Feedback Answer Status - `GET /public/v1/application/{packageName}/feedback/{feedbackId}`
+- ✅ 🧪 Update Feedback Answer - `PUT /public/v1/application/{packageName}/feedback/{feedbackId}`
+- ✅ 🧪 Delete Feedback Answer - `DELETE /public/v1/application/{packageName}/feedback/{feedbackId}`
+
+### ❌ Не реализовано (Not Implemented)
+
+#### Upload & Publication App
+
+- ❌ Upload AAB File - `POST /public/v1/application/{packageName}/version/{versionId}/aab`
+- ❌ Get App Tag List - `GET /public/v1/application/tag` (нужен для seoTagIds в create-draft)
+- ❌ Update Draft Version - `PUT /public/v1/application/{packageName}/version/{versionId}`
+- ❌ Delete Draft Version - `DELETE /public/v1/application/{packageName}/version/{versionId}`
+- ❌ Get Version Info - `GET /public/v1/application/{packageName}/version/{versionId}`
+- ❌ Get Version List - `GET /public/v1/application/{packageName}/version`
+
+#### Payments & Subscriptions (Общие методы)
+
+**Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions`
+
+- ❌ Refund - `POST /public/v1/payment/refund`
+- ❌ Get Payment - `GET /public/v1/payment/{paymentId}`
+- ❌ Get Subscription - `GET /public/v1/subscription/{subscriptionId}`
+- ❌ Cancel Subscription - `POST /public/v1/subscription/{subscriptionId}/cancel`
+- ❌ Get Subscription List - `GET /public/v1/subscription`
+
+#### Payments & Subscriptions App (Методы приложений)
+
+**Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app`
+
+- ❌ Get Invoices - `GET /public/v1/application/{packageName}/invoice`
+- ❌ Confirm Purchase - `POST /public/v1/application/{packageName}/purchase/confirm`
+- ❌ Cancel Purchase - `POST /public/v1/application/{packageName}/purchase/cancel`
+- ❌ Get Purchase - `GET /public/v1/application/{packageName}/purchase/{purchaseId}`
+- ❌ Get Purchase List - `GET /public/v1/application/{packageName}/purchase`
+
+#### Catalog (Продуктовый каталог)
+
+**Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-catalog`
+
+- ❌ Get Products - `GET /public/v1/catalog/product`
+- ❌ Get Product - `GET /public/v1/catalog/product/{productId}`
+- ❌ Create Product - `POST /public/v1/catalog/product`
+- ❌ Update Product - `PUT /public/v1/catalog/product/{productId}`
+- ❌ Delete Product - `DELETE /public/v1/catalog/product/{productId}`
+
+**Легенда статусов:**
+
+- ✅ **Implemented** - Полностью реализовано, протестировано и задокументировано
+- 🧪 **Tested** - Реализовано и имеет тесты
+- ⚠️ **Issues** - Реализовано, но есть известные проблемы
+- 🚧 **Beta** - Реализовано, но требует дополнительного тестирования/верификации
+- ❌ **Not Implemented** - Еще не реализовано
+
+**Приоритеты реализации:**
+
+1. **High Priority**: Upload AAB File, Get App Tag List, Get Version Info, Update Draft Version
+2. **Medium Priority**: Get Version List, Delete Draft Version, Payment/Subscription endpoints
+3. **Low Priority**: Catalog endpoints, advanced payment operations
 
 ## 📝 Лицензия
 

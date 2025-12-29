@@ -120,3 +120,6 @@ lib/
 .DS_Store
 .env
 .vscode
+
+# Cursor IDE
+.cursor/

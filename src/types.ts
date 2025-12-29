@@ -252,6 +252,28 @@ export interface UploadApkFileResponse {
 }
 
 /**
+ * Параметры отправки черновой версии на модерацию
+ */
+export interface SendForModerationOptions {
+  /**
+   * Приоритет обновления (опциональный)
+   * От 0 до 5, где 0 — минимальный, а 5 — максимальный
+   * По умолчанию равно 0
+   */
+  priorityUpdate?: number;
+}
+
+/**
+ * Ответ на отправку черновой версии на модерацию
+ * POST /public/v1/application/{packageName}/version/{versionId}/commit
+ */
+export interface SendForModerationResponse {
+  code: string;
+  message?: string;
+  timestamp: string;
+}
+
+/**
  * Типы для работы с отзывами (Feedback API)
  */
 
