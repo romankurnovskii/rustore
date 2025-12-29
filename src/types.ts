@@ -439,6 +439,98 @@ export interface GetSubscriptionListResponse {
 }
 
 /**
+ * Типы для работы с платежами и подписками (методы приложений)
+ */
+
+/**
+ * Информация о счете (invoice)
+ * GET /public/v1/application/{packageName}/invoice
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app/get-invoices
+ */
+export interface Invoice {
+  invoiceId?: number;
+  amount?: number;
+  currency?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Параметры для получения списка счетов
+ * GET /public/v1/application/{packageName}/invoice
+ */
+export interface GetInvoicesOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на запрос списка счетов
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app/get-invoices
+ */
+export interface GetInvoicesResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: Invoice[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
+ * Информация о покупке
+ * GET /public/v1/application/{packageName}/purchase/{purchaseId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app/get-purchase
+ */
+export interface Purchase {
+  purchaseId?: number;
+  productId?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос информации о покупке
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app/get-purchase
+ */
+export interface GetPurchaseResponse {
+  code: string;
+  message?: string;
+  body?: Purchase;
+  timestamp: string;
+}
+
+/**
+ * Параметры для получения списка покупок
+ * GET /public/v1/application/{packageName}/purchase
+ */
+export interface GetPurchaseListOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на запрос списка покупок
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app/get-purchase-list
+ */
+export interface GetPurchaseListResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: Purchase[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
  * Типы для работы с отзывами (Feedback API)
  */
 

@@ -27,6 +27,11 @@ import {
   getSubscriptionCommand,
   getSubscriptionListCommand,
 } from './commands/payments.js';
+import {
+  getInvoicesCommand,
+  getPurchaseCommand,
+  getPurchaseListCommand,
+} from './commands/payments-app.js';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -583,6 +588,117 @@ paymentsCommand
       }
 
       await getSubscriptionListCommand({
+        ...options,
+        ...unknownOptions,
+      });
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+// Команды для работы с платежами и подписками (методы приложений)
+const paymentsAppCommand = program
+  .command('payments-app')
+  .description('Работа с платежами и подписками (методы приложений)');
+
+paymentsAppCommand
+  .command('invoices')
+  .description('Получить список счетов приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .option('-a, --all', 'Получить все счета (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      // Парсим неизвестные опции для передачи в API
+      const unknownOptions: Record<string, string | number | boolean | undefined> = {};
+      const args = process.argv.slice(process.argv.indexOf('invoices') + 1);
+      for (let i = 0; i < args.length; i += 2) {
+        const arg = args[i];
+        const nextArg = args[i + 1];
+        if (arg?.startsWith('--') && nextArg) {
+          const key = arg.replace('--', '');
+          const value = nextArg;
+          // Пытаемся определить тип значения
+          if (value === 'true' || value === 'false') {
+            unknownOptions[key] = value === 'true';
+          } else if (!isNaN(Number(value))) {
+            unknownOptions[key] = Number(value);
+          } else {
+            unknownOptions[key] = value;
+          }
+        }
+      }
+
+      await getInvoicesCommand(options.packageName, {
+        ...options,
+        ...unknownOptions,
+      });
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+paymentsAppCommand
+  .command('purchase')
+  .description('Получить информацию о покупке')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--purchaseId <id>', 'ID покупки', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await getPurchaseCommand(options.packageName, options.purchaseId, options.json);
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+paymentsAppCommand
+  .command('purchase-list')
+  .description('Получить список покупок приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .option('-a, --all', 'Получить все покупки (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      // Парсим неизвестные опции для передачи в API
+      const unknownOptions: Record<string, string | number | boolean | undefined> = {};
+      const args = process.argv.slice(process.argv.indexOf('purchase-list') + 1);
+      for (let i = 0; i < args.length; i += 2) {
+        const arg = args[i];
+        const nextArg = args[i + 1];
+        if (arg?.startsWith('--') && nextArg) {
+          const key = arg.replace('--', '');
+          const value = nextArg;
+          // Пытаемся определить тип значения
+          if (value === 'true' || value === 'false') {
+            unknownOptions[key] = value === 'true';
+          } else if (!isNaN(Number(value))) {
+            unknownOptions[key] = Number(value);
+          } else {
+            unknownOptions[key] = value;
+          }
+        }
+      }
+
+      await getPurchaseListCommand(options.packageName, {
         ...options,
         ...unknownOptions,
       });
