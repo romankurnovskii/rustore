@@ -5,6 +5,16 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # 1.0.4
 
+## Features
+
+- ✨ Реализованы все GET endpoints для всех категорий API:
+  - **Upload & Publication App**: `apps version-info`, `apps version-list`, `apps tag-list`
+  - **Payments & Subscriptions**: `payments get`, `payments subscription`, `payments subscription-list`
+  - **Payments & Subscriptions App**: `payments-app invoices`, `payments-app purchase`, `payments-app purchase-list`
+  - **Catalog**: `catalog list`, `catalog get`
+- ✨ Все новые endpoints поддерживают пагинацию (`--all`) и динамические параметры
+- ✨ Все новые endpoints поддерживают вывод в JSON формате (`--json`)
+
 ## Documentation
 
 - 📖 Реорганизована структура документации: переведённые README перемещены в `docs/about/`
@@ -12,11 +22,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - 📖 Добавлены ссылки на `TODO_API_ENDPOINTS.md` и руководство по отправке APK во все README
 - 📖 Переименован `API_ENDPOINTS_TODO.md` → `docs/TODO_API_ENDPOINTS.md`
 - 📖 Переименован `docs/how-to-upload-apk.md` → `docs/how-to-submit-apk-for-production.md`
+- 📖 Обновлён `docs/TODO_API_ENDPOINTS.md` со статусом всех реализованных GET endpoints
 
 ## Technical
 
 - 🔧 Улучшена обработка ошибок загрузки файлов с проверкой существования и доступности
 - 🧪 Протестирован и подтверждён полный workflow публикации APK (create-draft → upload-apk → send-for-moderation)
+- 🧪 Добавлены тесты для всех новых GET endpoints
 
 # 1.0.3
 

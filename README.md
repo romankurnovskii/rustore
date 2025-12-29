@@ -336,6 +336,9 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 - ✅ 🧪 Create Draft Version - `POST /public/v1/application/{packageName}/version`
 - ✅ 🧪 Upload APK File - `POST /public/v1/application/{packageName}/version/{versionId}/apk`
 - ✅ 🧪 Send Draft for Moderation - `POST /public/v1/application/{packageName}/version/{versionId}/commit`
+- ✅ 🧪 Get Version Info - `GET /public/v1/application/{packageName}/version/{versionId}`
+- ✅ 🧪 Get Version List - `GET /public/v1/application/{packageName}/version`
+- ✅ 🧪 Get App Tag List - `GET /public/v1/application/tag`
 
 #### Feedback Process (Работа с отзывами)
 
@@ -350,38 +353,35 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 #### Upload & Publication App
 
 - ❌ Upload AAB File - `POST /public/v1/application/{packageName}/version/{versionId}/aab`
-- ❌ Get App Tag List - `GET /public/v1/application/tag` (нужен для seoTagIds в create-draft)
 - ❌ Update Draft Version - `PUT /public/v1/application/{packageName}/version/{versionId}`
 - ❌ Delete Draft Version - `DELETE /public/v1/application/{packageName}/version/{versionId}`
-- ❌ Get Version Info - `GET /public/v1/application/{packageName}/version/{versionId}`
-- ❌ Get Version List - `GET /public/v1/application/{packageName}/version`
 
 #### Payments & Subscriptions (Общие методы)
 
 **Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions`
 
+- ✅ 🧪 Get Payment - `GET /public/v1/payment/{paymentId}`
+- ✅ 🧪 Get Subscription - `GET /public/v1/subscription/{subscriptionId}`
+- ✅ 🧪 Get Subscription List - `GET /public/v1/subscription`
 - ❌ Refund - `POST /public/v1/payment/refund`
-- ❌ Get Payment - `GET /public/v1/payment/{paymentId}`
-- ❌ Get Subscription - `GET /public/v1/subscription/{subscriptionId}`
 - ❌ Cancel Subscription - `POST /public/v1/subscription/{subscriptionId}/cancel`
-- ❌ Get Subscription List - `GET /public/v1/subscription`
 
 #### Payments & Subscriptions App (Методы приложений)
 
 **Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions-app`
 
-- ❌ Get Invoices - `GET /public/v1/application/{packageName}/invoice`
+- ✅ 🧪 Get Invoices - `GET /public/v1/application/{packageName}/invoice`
+- ✅ 🧪 Get Purchase - `GET /public/v1/application/{packageName}/purchase/{purchaseId}`
+- ✅ 🧪 Get Purchase List - `GET /public/v1/application/{packageName}/purchase`
 - ❌ Confirm Purchase - `POST /public/v1/application/{packageName}/purchase/confirm`
 - ❌ Cancel Purchase - `POST /public/v1/application/{packageName}/purchase/cancel`
-- ❌ Get Purchase - `GET /public/v1/application/{packageName}/purchase/{purchaseId}`
-- ❌ Get Purchase List - `GET /public/v1/application/{packageName}/purchase`
 
 #### Catalog (Продуктовый каталог)
 
 **Base URL**: `https://www.rustore.ru/help/work-with-rustore-api/api-catalog`
 
-- ❌ Get Products - `GET /public/v1/catalog/product`
-- ❌ Get Product - `GET /public/v1/catalog/product/{productId}`
+- ✅ 🧪 Get Products - `GET /public/v1/catalog/product`
+- ✅ 🧪 Get Product - `GET /public/v1/catalog/product/{productId}`
 - ❌ Create Product - `POST /public/v1/catalog/product`
 - ❌ Update Product - `PUT /public/v1/catalog/product/{productId}`
 - ❌ Delete Product - `DELETE /public/v1/catalog/product/{productId}`
@@ -396,9 +396,9 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 
 **Приоритеты реализации:**
 
-1. **High Priority**: Upload AAB File, Get App Tag List, Get Version Info, Update Draft Version
-2. **Medium Priority**: Get Version List, Delete Draft Version, Payment/Subscription endpoints
-3. **Low Priority**: Catalog endpoints, advanced payment operations
+1. **High Priority**: Upload AAB File, Update Draft Version
+2. **Medium Priority**: Delete Draft Version, POST/PUT/DELETE Payment/Subscription endpoints
+3. **Low Priority**: POST/PUT/DELETE Catalog endpoints, advanced payment operations
 
 ## 📝 Лицензия
 

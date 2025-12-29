@@ -31,11 +31,11 @@ This document tracks all RuStore API endpoints and their implementation status i
 | Upload APK File           | POST `/public/v1/application/{packageName}/version/{versionId}/apk`    | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Upload AAB File           | POST `/public/v1/application/{packageName}/version/{versionId}/aab`    | ❌     | Not implemented                             |
 | Send Draft for Moderation | POST `/public/v1/application/{packageName}/version/{versionId}/commit` | ✅ 🧪  | Implemented and tested in `src/api/apps.ts` |
-| Get App Tag List          | GET `/public/v1/application/tag`                                       | ❌     | Not implemented                             |
+| Get App Tag List          | GET `/public/v1/application/tag`                                       | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Update Draft Version      | PUT `/public/v1/application/{packageName}/version/{versionId}`         | ❌     | Not implemented                             |
 | Delete Draft Version      | DELETE `/public/v1/application/{packageName}/version/{versionId}`      | ❌     | Not implemented                             |
-| Get Version Info          | GET `/public/v1/application/{packageName}/version/{versionId}`         | ❌     | Not implemented                             |
-| Get Version List          | GET `/public/v1/application/{packageName}/version`                     | ❌     | Not implemented                             |
+| Get Version Info          | GET `/public/v1/application/{packageName}/version/{versionId}`         | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
+| Get Version List          | GET `/public/v1/application/{packageName}/version`                     | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 
 ### 3. Feedback Process (Работа с отзывами)
 
@@ -56,10 +56,10 @@ This document tracks all RuStore API endpoints and their implementation status i
 | Endpoint              | Method                                                 | Status | Notes           |
 | --------------------- | ------------------------------------------------------ | ------ | --------------- |
 | Refund                | POST `/public/v1/payment/refund`                       | ❌     | Not implemented |
-| Get Payment           | GET `/public/v1/payment/{paymentId}`                   | ❌     | Not implemented |
-| Get Subscription      | GET `/public/v1/subscription/{subscriptionId}`         | ❌     | Not implemented |
+| Get Payment           | GET `/public/v1/payment/{paymentId}`                   | ✅ 🧪  | Implemented in `src/api/payments.ts`        |
+| Get Subscription      | GET `/public/v1/subscription/{subscriptionId}`         | ✅ 🧪  | Implemented in `src/api/payments.ts`        |
 | Cancel Subscription   | POST `/public/v1/subscription/{subscriptionId}/cancel` | ❌     | Not implemented |
-| Get Subscription List | GET `/public/v1/subscription`                          | ❌     | Not implemented |
+| Get Subscription List | GET `/public/v1/subscription`                          | ✅ 🧪  | Implemented in `src/api/payments.ts`        |
 
 ### 5. Payments & Subscriptions App (Платежи и подписки - методы приложений)
 
@@ -67,11 +67,11 @@ This document tracks all RuStore API endpoints and their implementation status i
 
 | Endpoint          | Method                                                           | Status | Notes           |
 | ----------------- | ---------------------------------------------------------------- | ------ | --------------- |
-| Get Invoices      | GET `/public/v1/application/{packageName}/invoice`               | ❌     | Not implemented |
+| Get Invoices      | GET `/public/v1/application/{packageName}/invoice`               | ✅ 🧪  | Implemented in `src/api/payments-app.ts`    |
 | Confirm Purchase  | POST `/public/v1/application/{packageName}/purchase/confirm`     | ❌     | Not implemented |
 | Cancel Purchase   | POST `/public/v1/application/{packageName}/purchase/cancel`      | ❌     | Not implemented |
-| Get Purchase      | GET `/public/v1/application/{packageName}/purchase/{purchaseId}` | ❌     | Not implemented |
-| Get Purchase List | GET `/public/v1/application/{packageName}/purchase`              | ❌     | Not implemented |
+| Get Purchase      | GET `/public/v1/application/{packageName}/purchase/{purchaseId}` | ✅ 🧪  | Implemented in `src/api/payments-app.ts`    |
+| Get Purchase List | GET `/public/v1/application/{packageName}/purchase`              | ✅ 🧪  | Implemented in `src/api/payments-app.ts`    |
 
 ### 6. Catalog (Продуктовый каталог)
 
@@ -79,8 +79,8 @@ This document tracks all RuStore API endpoints and their implementation status i
 
 | Endpoint       | Method                                          | Status | Notes           |
 | -------------- | ----------------------------------------------- | ------ | --------------- |
-| Get Products   | GET `/public/v1/catalog/product`                | ❌     | Not implemented |
-| Get Product    | GET `/public/v1/catalog/product/{productId}`    | ❌     | Not implemented |
+| Get Products   | GET `/public/v1/catalog/product`                | ✅ 🧪  | Implemented in `src/api/catalog.ts`          |
+| Get Product    | GET `/public/v1/catalog/product/{productId}`    | ✅ 🧪  | Implemented in `src/api/catalog.ts`          |
 | Create Product | POST `/public/v1/catalog/product`               | ❌     | Not implemented |
 | Update Product | PUT `/public/v1/catalog/product/{productId}`    | ❌     | Not implemented |
 | Delete Product | DELETE `/public/v1/catalog/product/{productId}` | ❌     | Not implemented |
@@ -94,21 +94,24 @@ This document tracks all RuStore API endpoints and their implementation status i
 3. ✅ Upload APK File
 4. ✅ Send Draft for Moderation
 5. ❌ Upload AAB File (for Android App Bundle support)
-6. ❌ Get Version Info (to check version status)
+6. ✅ Get Version Info (to check version status)
 7. ❌ Update Draft Version (to modify draft before submission)
 
 ### Medium Priority (Useful Features)
 
-1. ❌ Get App Tag List (needed for create-draft with seoTagIds)
-2. ❌ Get Version List (to see all versions)
+1. ✅ Get App Tag List (needed for create-draft with seoTagIds)
+2. ✅ Get Version List (to see all versions)
 3. ❌ Delete Draft Version (cleanup)
-4. ❌ Get Payment/Subscription info (for financial operations)
+4. ✅ Get Payment/Subscription info (for financial operations)
 
 ### Low Priority (Nice to Have)
 
-1. ❌ All Payments endpoints
-2. ❌ All Catalog endpoints
-3. ❌ Advanced version management
+1. ✅ GET Payments endpoints (Get Payment, Get Subscription, Get Subscription List)
+2. ✅ GET Payments App endpoints (Get Invoices, Get Purchase, Get Purchase List)
+3. ✅ GET Catalog endpoints (Get Products, Get Product)
+4. ❌ POST/PUT/DELETE Payments endpoints (Refund, Cancel Subscription, etc.)
+5. ❌ POST/PUT/DELETE Catalog endpoints (Create, Update, Delete Product)
+6. ❌ Advanced version management
 
 ## Notes
 
