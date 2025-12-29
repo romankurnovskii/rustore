@@ -29,13 +29,15 @@ This document tracks all RuStore API endpoints and their implementation status i
 | Get App List              | GET `/public/v1/application`                                           | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Create Draft Version      | POST `/public/v1/application/{packageName}/version`                    | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Upload APK File           | POST `/public/v1/application/{packageName}/version/{versionId}/apk`    | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
-| Upload AAB File           | POST `/public/v1/application/{packageName}/version/{versionId}/aab`    | ❌     | Not implemented                             |
+| Upload AAB File           | POST `/public/v1/application/{packageName}/version/{versionId}/aab`    | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Send Draft for Moderation | POST `/public/v1/application/{packageName}/version/{versionId}/commit` | ✅ 🧪  | Implemented and tested in `src/api/apps.ts` |
 | Get App Tag List          | GET `/public/v1/application/tag`                                       | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
-| Update Draft Version      | PUT `/public/v1/application/{packageName}/version/{versionId}`         | ❌     | Not implemented                             |
-| Delete Draft Version      | DELETE `/public/v1/application/{packageName}/version/{versionId}`      | ❌     | Not implemented                             |
+| Update Draft Version      | PUT `/public/v1/application/{packageName}/version/{versionId}`         | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
+| Delete Draft Version      | DELETE `/public/v1/application/{packageName}/version/{versionId}`      | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Get Version Info          | GET `/public/v1/application/{packageName}/version/{versionId}`         | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 | Get Version List          | GET `/public/v1/application/{packageName}/version`                     | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
+| Upload Screens            | POST `/public/v1/application/{packageName}/version/{versionId}/screens` | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
+| Get Version Status        | GET `/public/v1/application/{packageName}/version/{versionId}/status`  | ✅ 🧪  | Implemented in `src/api/apps.ts`            |
 
 ### 3. Feedback Process (Работа с отзывами)
 

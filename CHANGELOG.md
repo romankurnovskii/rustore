@@ -7,6 +7,16 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Features
 
+- ✨ Реализованы все оставшиеся endpoints для Upload & Publication App:
+  - **Upload AAB File**: `apps upload-aab` - загрузка Android App Bundle файлов
+  - **Update Draft Version**: `apps update-draft` - обновление черновой версии приложения
+  - **Delete Draft Version**: `apps delete-draft` - удаление черновой версии приложения
+  - **Upload Screens**: `apps upload-screens` - загрузка скриншотов для разных типов устройств
+  - **Get Version Status**: `apps version-status` - получение статуса модерации версии
+- ✨ Все новые endpoints поддерживают динамические параметры и JSON вывод
+
+## Features (Previous)
+
 - ✨ Реализованы все GET endpoints для всех категорий API:
   - **Upload & Publication App**: `apps version-info`, `apps version-list`, `apps tag-list`
   - **Payments & Subscriptions**: `payments get`, `payments subscription`, `payments subscription-list`

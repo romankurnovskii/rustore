@@ -339,6 +339,11 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 - ✅ 🧪 Get Version Info - `GET /public/v1/application/{packageName}/version/{versionId}`
 - ✅ 🧪 Get Version List - `GET /public/v1/application/{packageName}/version`
 - ✅ 🧪 Get App Tag List - `GET /public/v1/application/tag`
+- ✅ 🧪 Upload AAB File - `POST /public/v1/application/{packageName}/version/{versionId}/aab`
+- ✅ 🧪 Update Draft Version - `PUT /public/v1/application/{packageName}/version/{versionId}`
+- ✅ 🧪 Delete Draft Version - `DELETE /public/v1/application/{packageName}/version/{versionId}`
+- ✅ 🧪 Upload Screens - `POST /public/v1/application/{packageName}/version/{versionId}/screens`
+- ✅ 🧪 Get Version Status - `GET /public/v1/application/{packageName}/version/{versionId}/status`
 
 #### Feedback Process (Работа с отзывами)
 
@@ -352,9 +357,7 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 
 #### Upload & Publication App
 
-- ❌ Upload AAB File - `POST /public/v1/application/{packageName}/version/{versionId}/aab`
-- ❌ Update Draft Version - `PUT /public/v1/application/{packageName}/version/{versionId}`
-- ❌ Delete Draft Version - `DELETE /public/v1/application/{packageName}/version/{versionId}`
+- Все основные endpoints реализованы ✅
 
 #### Payments & Subscriptions (Общие методы)
 
@@ -396,8 +399,8 @@ const statusResponse = await feedbackApi.getFeedbackAnswerStatus('com.example.ap
 
 **Приоритеты реализации:**
 
-1. **High Priority**: Upload AAB File, Update Draft Version
-2. **Medium Priority**: Delete Draft Version, POST/PUT/DELETE Payment/Subscription endpoints
+1. ✅ **High Priority**: Upload AAB File, Update Draft Version, Delete Draft Version - **Реализовано**
+2. **Medium Priority**: POST/PUT/DELETE Payment/Subscription endpoints
 3. **Low Priority**: POST/PUT/DELETE Catalog endpoints, advanced payment operations
 
 ## 📝 Лицензия
