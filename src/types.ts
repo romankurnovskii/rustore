@@ -361,6 +361,84 @@ export interface GetAppTagListOptions {
 }
 
 /**
+ * Типы для работы с платежами и подписками (общие методы)
+ */
+
+/**
+ * Информация о платеже
+ * GET /public/v1/payment/{paymentId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions/get-payment
+ */
+export interface Payment {
+  paymentId?: number;
+  amount?: number;
+  currency?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос информации о платеже
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions/get-payment
+ */
+export interface GetPaymentResponse {
+  code: string;
+  message?: string;
+  body?: Payment;
+  timestamp: string;
+}
+
+/**
+ * Информация о подписке
+ * GET /public/v1/subscription/{subscriptionId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions/get-subscription
+ */
+export interface Subscription {
+  subscriptionId?: number;
+  status?: string;
+  productId?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос информации о подписке
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions/get-subscription
+ */
+export interface GetSubscriptionResponse {
+  code: string;
+  message?: string;
+  body?: Subscription;
+  timestamp: string;
+}
+
+/**
+ * Параметры для получения списка подписок
+ * GET /public/v1/subscription
+ */
+export interface GetSubscriptionListOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на запрос списка подписок
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-payments-subscriptions/get-subscription-list
+ */
+export interface GetSubscriptionListResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: Subscription[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
  * Типы для работы с отзывами (Feedback API)
  */
 
