@@ -101,26 +101,53 @@ function outputApps(apps: App[], json: boolean = false): void {
     if (app.iconUrl) {
       console.log(`   Иконка: ${app.iconUrl}`);
     }
+    // Выводим все дополнительные поля из API ответа
+    Object.entries(app).forEach(([key, value]) => {
+      const knownKeys = [
+        'appName',
+        'packageName',
+        'appId',
+        'appStatus',
+        'versionName',
+        'versionCode',
+        'versionType',
+        'companyName',
+        'companyId',
+        'role',
+        'deviceType',
+        'activePrice',
+        'paid',
+        'appVerUpdatedAt',
+        'shortDescription',
+        'iconUrl',
+      ];
+      if (!knownKeys.includes(key) && value !== undefined && value !== null) {
+        console.log(`   ${key}: ${JSON.stringify(value)}`);
+      }
+    });
     console.log('');
   });
 }
 
 /**
  * Команда создания черновой версии приложения
+ *
+ * Создает черновую версию приложения для последующей загрузки APK/AAB файла.
+ * Обязательный параметр: minAndroidVersion (от 1 до 16).
+ *
+ * @param packageName - Имя пакета приложения (например, com.example.app)
+ * @param data - Данные для создания черновой версии
+ * @param json - Вывести результат в формате JSON
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
  */
 export async function createDraftVersionCommand(
-  appId: number,
-  versionName: string,
-  versionCode: number,
+  packageName: string,
+  data: CreateDraftVersionRequest,
   json: boolean = false,
 ): Promise<void> {
   try {
-    const data: CreateDraftVersionRequest = {
-      versionName,
-      versionCode,
-    };
-
-    const response = await appsApi.createDraftVersion(appId, data);
+    const response = await appsApi.createDraftVersion(packageName, data);
 
     if (json) {
       console.log(JSON.stringify(response, null, 2));
@@ -129,32 +156,74 @@ export async function createDraftVersionCommand(
 
     if (response.code === 'OK' || response.code === '200') {
       console.log('✅ Черновая версия успешно создана!');
-      if (response.body) {
-        console.log(`   ID версии: ${response.body.versionId || 'N/A'}`);
-        console.log(`   Имя версии: ${response.body.versionName || versionName}`);
-        console.log(`   Код версии: ${response.body.versionCode || versionCode}`);
+      if (response.body !== undefined && response.body !== null) {
+        // API возвращает versionId напрямую как число в поле body
+        // Пример: {"code":"OK","body":2064432562,"timestamp":"..."}
+        let versionId: number | undefined;
+
+        if (typeof response.body === 'number') {
+          // body - это сам versionId (число)
+          versionId = response.body;
+        } else if (typeof response.body === 'object') {
+          // body - это объект, пытаемся найти versionId в разных возможных полях
+          versionId =
+            response.body.versionId ||
+            (response.body as {id?: number}).id ||
+            (response.body as {version_id?: number}).version_id;
+
+          // Выводим все доступные поля из объекта body
+          Object.entries(response.body).forEach(([key, value]) => {
+            if (
+              key !== 'versionId' &&
+              key !== 'id' &&
+              key !== 'version_id' &&
+              value !== undefined &&
+              value !== null
+            ) {
+              console.log(`   ${key}: ${JSON.stringify(value)}`);
+            }
+          });
+        }
+
+        if (versionId) {
+          console.log(`   ID версии: ${versionId}`);
+        } else {
+          console.log(`   ID версии: N/A`);
+        }
       }
     } else {
       throw new Error(response.message || 'Неизвестная ошибка');
     }
   } catch (error) {
-    throw new Error(
-      `Ошибка создания черновой версии: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    // Пытаемся извлечь versionId из сообщения об ошибке, если версия уже существует
+    const versionIdMatch = errorMessage.match(/ID\s*=\s*(\d+)/i);
+    if (versionIdMatch) {
+      const existingVersionId = versionIdMatch[1];
+      throw new Error(
+        `${errorMessage}\n\n💡 У вас уже есть черновая версия с ID: ${existingVersionId}\n   Используйте этот ID для загрузки APK файла.`,
+      );
+    }
+    throw new Error(`Ошибка создания черновой версии: ${errorMessage}`);
   }
 }
 
 /**
- * Команда загрузки APK/AAB файла
+ * Команда загрузки APK файла
  */
 export async function uploadApkFileCommand(
-  appId: number,
+  packageName: string,
   versionId: number,
   filePath: string,
+  isMainApk: boolean,
+  servicesType?: 'HMS' | 'Unknown',
   json: boolean = false,
 ): Promise<void> {
   try {
-    const response = await appsApi.uploadApkFile(appId, versionId, filePath);
+    const response = await appsApi.uploadApkFile(packageName, versionId, filePath, {
+      isMainApk,
+      servicesType: servicesType || 'Unknown',
+    });
 
     if (json) {
       console.log(JSON.stringify(response, null, 2));
@@ -162,7 +231,7 @@ export async function uploadApkFileCommand(
     }
 
     if (response.code === 'OK' || response.code === '200') {
-      console.log('✅ APK/AAB файл успешно загружен!');
+      console.log('✅ APK файл успешно загружен!');
       if (response.body) {
         console.log(`   ID файла: ${response.body.fileId || 'N/A'}`);
         console.log(`   Имя файла: ${response.body.fileName || 'N/A'}`);

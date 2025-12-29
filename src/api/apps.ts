@@ -15,6 +15,7 @@ import type {
   CreateDraftVersionRequest,
   CreateDraftVersionResponse,
   UploadApkFileResponse,
+  UploadApkFileOptions,
 } from '../types.js';
 
 /**
@@ -90,87 +91,127 @@ export class AppsApi extends RustoreApiClient {
 
   /**
    * Создать черновую версию приложения
-   * POST /public/v1/application/{appId}/draft-version
+   * POST /public/v1/application/{packageName}/version
    *
-   * Метод позволяет создать черновую версию приложения для последующей загрузки APK/AAB.
+   * Метод позволяет создать черновик версии и заполнить его основной информацией.
+   * Обязательный параметр: minAndroidVersion (от 1 до 16).
    *
-   * @param appId - ID приложения
-   * @param data - Данные для создания черновой версии (versionName, versionCode)
+   * @param packageName - Наименование пакета приложения (например, com.example.app)
+   * @param data - Данные для создания черновой версии
    * @returns Информация о созданной черновой версии
    *
    * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
    */
   async createDraftVersion(
-    appId: number,
+    packageName: string,
     data: CreateDraftVersionRequest,
   ): Promise<CreateDraftVersionResponse> {
-    const endpoint = `/public/v1/application/${appId}/draft-version`;
+    const endpoint = `/public/v1/application/${packageName}/version`;
     return this.post<CreateDraftVersionResponse>(endpoint, data);
   }
 
   /**
-   * Загрузить APK/AAB файл для версии приложения
-   * POST /public/v1/application/{appId}/version/{versionId}/apk-file
+   * Загрузить APK файл для версии приложения
+   * POST /public/v1/application/{packageName}/version/{versionId}/apk
    *
-   * Метод позволяет загрузить APK или AAB файл для черновой версии приложения.
+   * Метод позволяет загрузить APK файл для версии приложения.
+   * Согласно документации API, endpoint использует packageName, а не appId.
    *
-   * @param appId - ID приложения
+   * @param packageName - Имя пакета приложения (например, com.example.app)
    * @param versionId - ID версии (полученный из createDraftVersion)
-   * @param filePath - Путь к APK/AAB файлу
+   * @param filePath - Путь к APK файлу
+   * @param options - Параметры загрузки (isMainApk - обязательный, servicesType - опциональный)
    * @returns Информация о загруженном файле
    *
-   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload
+   * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk
    */
   async uploadApkFile(
-    appId: number,
+    packageName: string,
     versionId: number,
     filePath: string,
+    options: UploadApkFileOptions,
   ): Promise<UploadApkFileResponse> {
-    const endpoint = `/public/v1/application/${appId}/version/${versionId}/apk-file`;
+    // Формируем query параметры
+    const queryParams = new URLSearchParams();
+    queryParams.append('isMainApk', String(options.isMainApk));
+    if (options.servicesType) {
+      queryParams.append('servicesType', options.servicesType);
+    } else {
+      queryParams.append('servicesType', 'Unknown');
+    }
+
+    const endpoint = `/public/v1/application/${packageName}/version/${versionId}/apk?${queryParams.toString()}`;
 
     // Читаем файл
     const fileBuffer = readFileSync(filePath);
     const fileName = filePath.split('/').pop() || 'app.apk';
 
     // Создаём FormData для multipart/form-data запроса
+    // В Node.js 18+ FormData поддерживается нативно
     const formData = new FormData();
-    const blob = new Blob([fileBuffer], {
+    // Используем File вместо Blob для лучшей совместимости
+    const file = new File([fileBuffer], fileName, {
       type: 'application/vnd.android.package-archive',
     });
-    formData.append('file', blob, fileName);
+    formData.append('file', file);
 
     // Выполняем запрос с FormData
     const token = await getToken();
     const url = `${this.baseUrl}${endpoint}`;
 
     if (process.env.DEBUG) {
-      console.error(`[DEBUG] API Request: ${url} (uploading ${fileName})`);
+      const fileSizeMB = (fileBuffer.length / (1024 * 1024)).toFixed(2);
+      console.error(
+        `[DEBUG] API Request: ${url} (uploading ${fileName}, size: ${fileSizeMB} MB)`,
+      );
     }
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Public-Token': token,
-        // Не устанавливаем Content-Type - браузер установит автоматически с boundary
+        // Не устанавливаем Content-Type - fetch установит автоматически с boundary
       },
       body: formData,
     });
 
+    // Получаем текст ответа для логирования и парсинга
+    const responseText = await response.text();
+
+    // Debug: логируем сырой ответ API
+    if (process.env.DEBUG) {
+      console.error(
+        `[DEBUG] API Response Status: ${response.status} ${response.statusText}`,
+      );
+      console.error(
+        `[DEBUG] API Response Headers:`,
+        Object.fromEntries(response.headers.entries()),
+      );
+      console.error(`[DEBUG] API Response Body:`, responseText);
+    }
+
     if (!response.ok) {
-      const errorText = await response.text();
       let errorData: {code?: string; message?: string} | undefined;
 
       try {
-        errorData = JSON.parse(errorText);
+        errorData = JSON.parse(responseText);
       } catch {
         // Игнорируем ошибку парсинга
       }
 
-      const errorMessage = errorData?.message ?? errorText;
+      const errorMessage = errorData?.message ?? responseText;
       throw new Error(`Ошибка API (${response.status}): ${errorMessage}`);
     }
 
-    return (await response.json()) as UploadApkFileResponse;
+    // Парсим JSON ответ
+    try {
+      return JSON.parse(responseText) as UploadApkFileResponse;
+    } catch (parseError) {
+      if (process.env.DEBUG) {
+        console.error(`[DEBUG] Failed to parse JSON response:`, parseError);
+      }
+      throw new Error(`Ошибка парсинга ответа API: ${responseText}`);
+    }
   }
 }
 

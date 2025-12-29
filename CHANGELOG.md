@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.3
+
+## Features
+
+- ✨ Исправлена обработка ответа API для `createDraftVersion` - теперь корректно извлекается `versionId` из поля `body` (которое является числом, а не объектом)
+- 📚 Добавлены ссылки на документацию API во все docstrings
+- 📖 Обновлена документация `docs/how-to-upload-apk.md` с правильной структурой ответа API и ссылками на документацию
+
+## Technical
+
+- 🔧 Улучшено логирование в режиме DEBUG - теперь выводится полный ответ API (статус, заголовки, тело)
+- 🔧 Исправлена типизация `CreateDraftVersionResponse` - `body` может быть как числом, так и объектом
+- 🔧 Упрощен CLI - параметры передаются напрямую без конвертации (используются те же имена, что и в API)
+- 🔧 Исправлен endpoint для `createDraftVersion` - использует `packageName` вместо `appId`
+- 🔧 Исправлен endpoint для `uploadApkFile` - использует `/apk` вместо `/apk-file` и правильные query параметры
+
 # 1.0.2
 
 ## Features

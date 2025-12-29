@@ -10,6 +10,7 @@ import {
   createDraftVersionCommand,
   uploadApkFileCommand,
 } from './commands/apps.js';
+import type {CreateDraftVersionRequest} from './types.js';
 import {
   getFeedbackCommand,
   createFeedbackAnswerCommand,
@@ -167,18 +168,59 @@ appsCommand
 appsCommand
   .command('create-draft')
   .description('Создать черновую версию приложения')
-  .requiredOption('--app-id <id>', 'ID приложения', parseInt)
-  .requiredOption('--version-name <name>', 'Имя версии (например, 1.0.0)')
-  .requiredOption('--version-code <code>', 'Код версии (число)', parseInt)
+  .allowUnknownOption() // Разрешаем произвольные параметры для поддержки всех параметров API
+  .allowExcessArguments()
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption(
+    '--minAndroidVersion <version>',
+    'Минимальная версия Android (1-16)',
+    parseInt,
+  )
   .option('-j, --json', 'Вывести результат в формате JSON')
   .action(async options => {
     try {
-      await createDraftVersionCommand(
-        options.appId,
-        options.versionName,
-        options.versionCode,
-        options.json,
-      );
+      // Собираем все параметры из CLI, исключая известные опции
+      const knownOptions = ['packageName', 'minAndroidVersion', 'json'];
+      const apiParams: CreateDraftVersionRequest = {
+        minAndroidVersion: options.minAndroidVersion,
+      };
+
+      // Парсим неизвестные опции из process.argv
+      const createDraftIndex = process.argv.indexOf('create-draft');
+      if (createDraftIndex >= 0) {
+        for (let i = createDraftIndex + 1; i < process.argv.length; i++) {
+          const arg = process.argv[i];
+          if (arg?.startsWith('--') && !knownOptions.some(opt => arg.includes(opt))) {
+            const key = arg.replace(/^--/, '');
+            const value = process.argv[i + 1];
+            if (value && !value.startsWith('--')) {
+              // Парсим значение
+              let parsedValue: unknown = value;
+              const lowerValue = value.toLowerCase();
+              if (lowerValue === 'true') {
+                parsedValue = true;
+              } else if (lowerValue === 'false') {
+                parsedValue = false;
+              } else if (!isNaN(Number(value)) && value.trim() !== '') {
+                parsedValue = Number(value);
+              } else if (value.startsWith('[') || value.startsWith('{')) {
+                try {
+                  parsedValue = JSON.parse(value);
+                } catch {
+                  parsedValue = value;
+                }
+              }
+              apiParams[key] = parsedValue;
+              i++;
+            }
+          }
+        }
+      }
+
+      await createDraftVersionCommand(options.packageName, apiParams, options.json);
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -187,17 +229,42 @@ appsCommand
 
 appsCommand
   .command('upload-apk')
-  .description('Загрузить APK/AAB файл для версии приложения')
-  .requiredOption('--app-id <id>', 'ID приложения', parseInt)
-  .requiredOption('--version-id <id>', 'ID версии (из create-draft)', parseInt)
-  .requiredOption('--file <path>', 'Путь к APK/AAB файлу')
+  .description('Загрузить APK файл для версии приложения')
+  .allowUnknownOption() // Разрешаем произвольные параметры
+  .allowExcessArguments()
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии (из create-draft)', parseInt)
+  .requiredOption('--file <path>', 'Путь к APK файлу')
+  .requiredOption(
+    '--isMainApk <true|false>',
+    'Признак основного APK-файла (true - основной, false - дополнительный)',
+    (value: string) => {
+      const lower = value.toLowerCase();
+      if (lower === 'true') return true;
+      if (lower === 'false') return false;
+      throw new Error('isMainApk должен быть true или false');
+    },
+  )
+  .option(
+    '--servicesType <type>',
+    'Тип сервиса (HMS - для Huawei Mobile Services, Unknown - по умолчанию)',
+    (value: string) => {
+      if (value === 'HMS' || value === 'Unknown') return value;
+      throw new Error('servicesType должен быть HMS или Unknown');
+    },
+  )
   .option('-j, --json', 'Вывести результат в формате JSON')
   .action(async options => {
     try {
       await uploadApkFileCommand(
-        options.appId,
+        options.packageName,
         options.versionId,
         options.file,
+        options.isMainApk,
+        options.servicesType,
         options.json,
       );
     } catch (error) {

@@ -111,11 +111,14 @@ rustore apps create-draft --app-id 123456 --version-name "1.0.0" --version-code 
 # Создать черновую версию с JSON выводом
 rustore apps create-draft --app-id 123456 --version-name "2.0.0" --version-code 2 --json
 
-# Загрузить APK/AAB файл для версии
-rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.apk
+# Загрузить APK файл для версии (обязательно указать is-main-apk)
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk true
 
-# Загрузить APK/AAB файл с JSON выводом
-rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.aab --json
+# Загрузить APK файл с Huawei Mobile Services
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk false --services-type HMS
+
+# Загрузить APK файл с JSON выводом
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk true --json
 ```
 
 ### Работа с отзывами
@@ -282,11 +285,15 @@ const draftVersion = await appsApi.createDraftVersion(123456, {
   versionCode: 1,
 });
 
-// Загрузить APK/AAB файл для версии
+// Загрузить APK файл для версии
 const uploadResult = await appsApi.uploadApkFile(
-  123456,
+  'com.example.app', // packageName вместо appId
   draftVersion.body?.versionId || 789,
   './app-release.apk',
+  {
+    isMainApk: true, // обязательный параметр
+    servicesType: 'Unknown', // опциональный: 'HMS' или 'Unknown'
+  },
 );
 
 // Получить отзывы приложения

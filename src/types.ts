@@ -86,32 +86,158 @@ export interface GetAppListOptions {
 
 /**
  * Параметры для создания черновой версии приложения
- * POST /public/v1/application/{appId}/draft-version
+ * POST /public/v1/application/{packageName}/version
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
  */
 export interface CreateDraftVersionRequest {
-  versionName: string;
-  versionCode: number;
+  /**
+   * Наименование версии приложения
+   * Максимальная длина — 5 символов
+   */
+  appName?: string;
+  /**
+   * Тип версии приложения
+   * GAMES - для игр
+   * MAIN - для неигровых приложений
+   */
+  appType?: 'GAMES' | 'MAIN';
+  /**
+   * Категории версии
+   * Максимальное количество категорий — 2 категории
+   */
+  categories?: string[];
+  /**
+   * Возрастная категория
+   * Возможные варианты: 18+, 16+, 12+, 6+, 0+
+   */
+  ageLegal?: '18+' | '16+' | '12+' | '6+' | '0+';
+  /**
+   * Краткое описание версии
+   * Максимальная длина — 80 символов
+   */
+  shortDescription?: string;
+  /**
+   * Полное описание версии
+   * Максимальная длина — 4 000 символов
+   */
+  fullDescription?: string;
+  /**
+   * Описание «Что нового»
+   * Максимальная длина — 5000 символов
+   */
+  whatsNew?: string;
+  /**
+   * Комментарий разработчика для модератора
+   * Максимальная длина — 180 символов
+   */
+  moderInfo?: string;
+  /**
+   * Стоимость приложения в минимальных единицах валюты (в копейках)
+   * Например: «87.99 руб.» = 8799
+   * Значение должно быть >0
+   */
+  priceValue?: string;
+  /**
+   * ID поисковых тегов из списка
+   * Максимальное количество — 5
+   * Все теги должны быть либо только для GAMES, либо только для MAIN
+   */
+  seoTagIds?: number[];
+  /**
+   * Тип публикации
+   * MANUAL - ручная публикация
+   * INSTANTLY - автоматическая публикация, сразу после прохождения модерации (по умолчанию)
+   * DELAYED - отложенная публикация
+   */
+  publishType?: 'MANUAL' | 'INSTANTLY' | 'DELAYED';
+  /**
+   * Дата и время для отложенной публикации
+   * Формат: yyyy-MM-dd'T'HH:mm:ssXXX
+   * Обязателен только если publishType = DELAYED
+   * Дата должна быть не раньше 24 часов и не позже 60 дней с планируемой даты отправки на модерацию
+   */
+  publishDateTime?: string;
+  /**
+   * Процент для частичной публикации приложения
+   * Возможные значения: 5%, 10%, 25%, 50%, 75%, 100%
+   */
+  partialValue?: 5 | 10 | 25 | 50 | 75 | 100;
+  /**
+   * Минимальная версия Android (обязательное поле)
+   * Числовое поле от 1 до 16
+   */
+  minAndroidVersion: number;
+  /**
+   * Контакты разработчика
+   * email - обязательное текстовое поле в формате @.* (например test@mail.ru)
+   * website - необязательное текстовое поле (например https://www.rustore.ru/)
+   * vkCommunity - необязательное текстовое поле в формате https://vk.com/* (например https://vk.com/rustore_official)
+   */
+  developerContacts?: Array<{
+    email: string;
+    website?: string;
+    vkCommunity?: string;
+  }>;
+  /**
+   * Список часто задаваемых вопросов и ответов для карточки приложения
+   * Максимум 10 элементов
+   * question ≤ 120 символов
+   * answer ≤ 500 символов
+   */
+  faq?: Array<{
+    question: string;
+    answer: string;
+  }>;
   [key: string]: unknown; // Для поддержки будущих полей API
 }
 
 /**
  * Ответ на создание черновой версии приложения
+ *
+ * API возвращает versionId напрямую в поле body как число, а не как объект.
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
  */
 export interface CreateDraftVersionResponse {
   code: string;
   message?: string;
-  body?: {
-    versionId?: number;
-    versionName?: string;
-    versionCode?: number;
-    [key: string]: unknown;
-  };
+  /**
+   * ID версии (versionId) возвращается напрямую как число, а не как объект
+   * Пример: {"code":"OK","body":2064432562,"timestamp":"..."}
+   */
+  body?:
+    | number
+    | {
+        versionId?: number;
+        versionName?: string;
+        versionCode?: number;
+        [key: string]: unknown;
+      };
   timestamp: string;
 }
 
 /**
+ * Параметры загрузки APK файла
+ */
+export interface UploadApkFileOptions {
+  /**
+   * Признак основного APK-файла (обязательный)
+   * true - основной APK-файл
+   * false - дополнительный APK-файл
+   */
+  isMainApk: boolean;
+  /**
+   * Тип сервиса, используемый в приложении (опциональный)
+   * HMS - для APK-файлов c Huawei Mobile Servises
+   * Unknown - по умолчанию
+   */
+  servicesType?: 'HMS' | 'Unknown';
+}
+
+/**
  * Ответ на загрузку APK/AAB файла
- * POST /public/v1/application/{appId}/version/{versionId}/apk-file
+ * POST /public/v1/application/{packageName}/version/{versionId}/apk
  */
 export interface UploadApkFileResponse {
   code: string;

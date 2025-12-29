@@ -29,9 +29,23 @@ export class RustoreApiClient {
     const token = await getToken();
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Debug: логируем URL для отладки (можно убрать в production)
+    // Debug: логируем URL и тело запроса для отладки
     if (process.env.DEBUG) {
-      console.error(`[DEBUG] API Request: ${url}`);
+      console.error(`[DEBUG] API Request: ${options.method || 'GET'} ${url}`);
+      if (options.body && !(options.body instanceof FormData)) {
+        try {
+          const bodyText =
+            typeof options.body === 'string'
+              ? options.body
+              : JSON.stringify(options.body);
+          console.error(`[DEBUG] API Request Body:`, bodyText);
+        } catch {
+          console.error(`[DEBUG] API Request Body: [unable to stringify]`);
+        }
+      }
+      if (options.body instanceof FormData) {
+        console.error(`[DEBUG] API Request Body: [FormData - multipart/form-data]`);
+      }
     }
 
     // Определяем заголовки: для multipart/form-data не устанавливаем Content-Type
@@ -54,22 +68,44 @@ export class RustoreApiClient {
       headers,
     });
 
+    // Получаем текст ответа для логирования и парсинга
+    const responseText = await response.text();
+
+    // Debug: логируем сырой ответ API
+    if (process.env.DEBUG) {
+      console.error(
+        `[DEBUG] API Response Status: ${response.status} ${response.statusText}`,
+      );
+      console.error(
+        `[DEBUG] API Response Headers:`,
+        Object.fromEntries(response.headers.entries()),
+      );
+      console.error(`[DEBUG] API Response Body:`, responseText);
+    }
+
     if (!response.ok) {
-      const errorText = await response.text();
       let errorData: ApiError | undefined;
 
       try {
-        errorData = JSON.parse(errorText) as ApiError;
+        errorData = JSON.parse(responseText) as ApiError;
       } catch {
         // Игнорируем ошибку парсинга
       }
 
       // Более информативное сообщение об ошибке
-      const errorMessage = errorData?.message ?? errorText;
+      const errorMessage = errorData?.message ?? responseText;
       throw new Error(`Ошибка API (${response.status}): ${errorMessage}`);
     }
 
-    return (await response.json()) as T;
+    // Парсим JSON ответ
+    try {
+      return JSON.parse(responseText) as T;
+    } catch (parseError) {
+      if (process.env.DEBUG) {
+        console.error(`[DEBUG] Failed to parse JSON response:`, parseError);
+      }
+      throw new Error(`Ошибка парсинга ответа API: ${responseText}`);
+    }
   }
 
   /**

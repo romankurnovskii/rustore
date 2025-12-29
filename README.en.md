@@ -111,11 +111,14 @@ rustore apps create-draft --app-id 123456 --version-name "1.0.0" --version-code 
 # Create draft version with JSON output
 rustore apps create-draft --app-id 123456 --version-name "2.0.0" --version-code 2 --json
 
-# Upload APK/AAB file for version
-rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.apk
+# Upload APK file for version (is-main-apk is required)
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk true
 
-# Upload APK/AAB file with JSON output
-rustore apps upload-apk --app-id 123456 --version-id 789 --file ./app-release.aab --json
+# Upload APK file with Huawei Mobile Services
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk false --services-type HMS
+
+# Upload APK file with JSON output
+rustore apps upload-apk --package-name com.example.app --version-id 789 --file ./app-release.apk --is-main-apk true --json
 ```
 
 ### Working with Feedback
@@ -283,11 +286,15 @@ const draftVersion = await appsApi.createDraftVersion(123456, {
   versionCode: 1,
 });
 
-// Upload APK/AAB file for version
+// Upload APK file for version
 const uploadResult = await appsApi.uploadApkFile(
-  123456,
+  'com.example.app', // packageName instead of appId
   draftVersion.body?.versionId || 789,
   './app-release.apk',
+  {
+    isMainApk: true, // required parameter
+    servicesType: 'Unknown', // optional: 'HMS' or 'Unknown'
+  },
 );
 
 // Get application feedback
