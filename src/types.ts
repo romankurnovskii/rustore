@@ -531,6 +531,60 @@ export interface GetPurchaseListResponse {
 }
 
 /**
+ * Типы для работы с продуктовым каталогом
+ */
+
+/**
+ * Информация о продукте
+ * GET /public/v1/catalog/product/{productId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-catalog/get-product
+ */
+export interface Product {
+  productId?: number;
+  productName?: string;
+  price?: number;
+  currency?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ответ на запрос информации о продукте
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-catalog/get-product
+ */
+export interface GetProductResponse {
+  code: string;
+  message?: string;
+  body?: Product;
+  timestamp: string;
+}
+
+/**
+ * Параметры для получения списка продуктов
+ * GET /public/v1/catalog/product
+ */
+export interface GetProductsOptions {
+  continuationToken?: string;
+  pageSize?: number;
+  [key: string]: string | number | undefined;
+}
+
+/**
+ * Ответ на запрос списка продуктов
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-catalog/get-products
+ */
+export interface GetProductsResponse {
+  code: string;
+  message?: string;
+  body: {
+    content: Product[];
+    continuationToken?: string;
+    pageSize?: number;
+  };
+  timestamp: string;
+}
+
+/**
  * Типы для работы с отзывами (Feedback API)
  */
 

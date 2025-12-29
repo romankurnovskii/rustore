@@ -32,6 +32,7 @@ import {
   getPurchaseCommand,
   getPurchaseListCommand,
 } from './commands/payments-app.js';
+import {getProductsCommand, getProductCommand} from './commands/catalog.js';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
@@ -702,6 +703,65 @@ paymentsAppCommand
         ...options,
         ...unknownOptions,
       });
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+// Команды для работы с продуктовым каталогом
+const catalogCommand = program
+  .command('catalog')
+  .description('Работа с продуктовым каталогом');
+
+catalogCommand
+  .command('list')
+  .description('Получить список продуктов')
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .option('-a, --all', 'Получить все продукты (с пагинацией)')
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .option('--page-size <size>', 'Размер страницы', parseInt)
+  .action(async options => {
+    try {
+      // Парсим неизвестные опции для передачи в API
+      const unknownOptions: Record<string, string | number | boolean | undefined> = {};
+      const args = process.argv.slice(process.argv.indexOf('list') + 1);
+      for (let i = 0; i < args.length; i += 2) {
+        const arg = args[i];
+        const nextArg = args[i + 1];
+        if (arg?.startsWith('--') && nextArg) {
+          const key = arg.replace('--', '');
+          const value = nextArg;
+          // Пытаемся определить тип значения
+          if (value === 'true' || value === 'false') {
+            unknownOptions[key] = value === 'true';
+          } else if (!isNaN(Number(value))) {
+            unknownOptions[key] = Number(value);
+          } else {
+            unknownOptions[key] = value;
+          }
+        }
+      }
+
+      await getProductsCommand({
+        ...options,
+        ...unknownOptions,
+      });
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+catalogCommand
+  .command('get')
+  .description('Получить информацию о продукте')
+  .requiredOption('--productId <id>', 'ID продукта', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await getProductCommand(options.productId, options.json);
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);
