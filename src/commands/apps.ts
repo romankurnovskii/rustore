@@ -3,7 +3,11 @@
  */
 
 import {appsApi} from '../api/apps.js';
-import type {App, CreateDraftVersionRequest} from '../types.js';
+import type {
+  App,
+  CreateDraftVersionRequest,
+  UpdateDraftVersionRequest,
+} from '../types.js';
 
 /**
  * Команда получения списка приложений
@@ -523,6 +527,179 @@ export async function getAppTagListCommand(options: {
   } catch (error) {
     throw new Error(
       `Ошибка получения списка тегов: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда загрузки AAB файла
+ */
+export async function uploadAabFileCommand(
+  packageName: string,
+  versionId: number,
+  filePath: string,
+  isMainApk: boolean,
+  servicesType?: 'HMS' | 'Unknown',
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.uploadAabFile(packageName, versionId, filePath, {
+      isMainApk,
+      servicesType: servicesType || 'Unknown',
+    });
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ AAB файл успешно загружен!');
+      if (response.body) {
+        console.log(`   ID файла: ${response.body.fileId || 'N/A'}`);
+        console.log(`   Имя файла: ${response.body.fileName || 'N/A'}`);
+        if (response.body.fileSize) {
+          const sizeMB = (response.body.fileSize / (1024 * 1024)).toFixed(2);
+          console.log(`   Размер: ${sizeMB} MB`);
+        }
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка загрузки AAB файла: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда обновления черновой версии приложения
+ */
+export async function updateDraftVersionCommand(
+  packageName: string,
+  versionId: number,
+  data: UpdateDraftVersionRequest,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.updateDraftVersion(packageName, versionId, data);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Черновая версия успешно обновлена!');
+      if (response.body?.versionId) {
+        console.log(`   ID версии: ${response.body.versionId}`);
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка обновления черновой версии: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда удаления черновой версии приложения
+ */
+export async function deleteDraftVersionCommand(
+  packageName: string,
+  versionId: number,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.deleteDraftVersion(packageName, versionId);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Черновая версия успешно удалена!');
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка удаления черновой версии: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда загрузки скриншотов для версии приложения
+ */
+export async function uploadScreensCommand(
+  packageName: string,
+  versionId: number,
+  filePaths: string[],
+  deviceType: 'PHONE' | 'TABLET' | 'TV',
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.uploadScreens(packageName, versionId, filePaths, {
+      deviceType,
+    });
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Скриншоты успешно загружены!');
+      if (response.body?.screenIds) {
+        console.log(`   Загружено скриншотов: ${response.body.screenIds.length}`);
+        console.log(`   Тип устройства: ${deviceType}`);
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка загрузки скриншотов: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+/**
+ * Команда получения статуса версии приложения
+ */
+export async function getVersionStatusCommand(
+  packageName: string,
+  versionId: number,
+  json: boolean = false,
+): Promise<void> {
+  try {
+    const response = await appsApi.getVersionStatus(packageName, versionId);
+
+    if (json) {
+      console.log(JSON.stringify(response, null, 2));
+      return;
+    }
+
+    if (response.code === 'OK' || response.code === '200') {
+      console.log('✅ Статус версии приложения:');
+      if (response.body) {
+        Object.entries(response.body).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            console.log(`   ${key}: ${JSON.stringify(value)}`);
+          }
+        });
+      }
+    } else {
+      throw new Error(response.message || 'Неизвестная ошибка');
+    }
+  } catch (error) {
+    throw new Error(
+      `Ошибка получения статуса версии: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

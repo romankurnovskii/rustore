@@ -13,8 +13,13 @@ import {
   getVersionInfoCommand,
   getVersionListCommand,
   getAppTagListCommand,
+  uploadAabFileCommand,
+  updateDraftVersionCommand,
+  deleteDraftVersionCommand,
+  uploadScreensCommand,
+  getVersionStatusCommand,
 } from './commands/apps.js';
-import type {CreateDraftVersionRequest} from './types.js';
+import type {CreateDraftVersionRequest, UpdateDraftVersionRequest} from './types.js';
 import {
   getFeedbackCommand,
   createFeedbackAnswerCommand,
@@ -310,6 +315,191 @@ appsCommand
         options.priorityUpdate,
         options.json,
       );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('upload-aab')
+  .description('Загрузить AAB файл для версии приложения')
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии (из create-draft)', parseInt)
+  .requiredOption('--file <path>', 'Путь к AAB файлу')
+  .requiredOption(
+    '--isMainApk <true|false>',
+    'Признак основного AAB-файла (true - основной, false - дополнительный)',
+    (value: string) => {
+      const lower = value.toLowerCase();
+      if (lower === 'true') return true;
+      if (lower === 'false') return false;
+      throw new Error('isMainApk должен быть true или false');
+    },
+  )
+  .option(
+    '--servicesType <type>',
+    'Тип сервиса (HMS - для Huawei Mobile Services, Unknown - по умолчанию)',
+    (value: string) => {
+      if (value === 'HMS' || value === 'Unknown') return value;
+      throw new Error('servicesType должен быть HMS или Unknown');
+    },
+  )
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await uploadAabFileCommand(
+        options.packageName,
+        options.versionId,
+        options.file,
+        options.isMainApk,
+        options.servicesType,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('update-draft')
+  .description('Обновить черновую версию приложения')
+  .allowUnknownOption()
+  .allowExcessArguments()
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      const knownOptions = ['packageName', 'versionId', 'json'];
+      const apiParams: UpdateDraftVersionRequest = {};
+
+      // Парсим все параметры из CLI
+      const updateDraftIndex = process.argv.indexOf('update-draft');
+      if (updateDraftIndex >= 0) {
+        for (let i = updateDraftIndex + 1; i < process.argv.length; i++) {
+          const arg = process.argv[i];
+          if (arg?.startsWith('--') && !knownOptions.some(opt => arg.includes(opt))) {
+            const key = arg.replace(/^--/, '');
+            const value = process.argv[i + 1];
+            if (value && !value.startsWith('--')) {
+              let parsedValue: unknown = value;
+              const lowerValue = value.toLowerCase();
+              if (lowerValue === 'true') {
+                parsedValue = true;
+              } else if (lowerValue === 'false') {
+                parsedValue = false;
+              } else if (!isNaN(Number(value)) && value.trim() !== '') {
+                parsedValue = Number(value);
+              } else if (value.startsWith('[') || value.startsWith('{')) {
+                try {
+                  parsedValue = JSON.parse(value);
+                } catch {
+                  parsedValue = value;
+                }
+              }
+              apiParams[key] = parsedValue;
+              i++;
+            }
+          }
+        }
+      }
+
+      await updateDraftVersionCommand(
+        options.packageName,
+        options.versionId,
+        apiParams,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('delete-draft')
+  .description('Удалить черновую версию приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await deleteDraftVersionCommand(
+        options.packageName,
+        options.versionId,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('upload-screens')
+  .description('Загрузить скриншоты для версии приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии', parseInt)
+  .requiredOption(
+    '--files <paths>',
+    'Пути к файлам скриншотов (через запятую)',
+    (value: string) => value.split(',').map(p => p.trim()),
+  )
+  .requiredOption(
+    '--deviceType <type>',
+    'Тип устройства (PHONE, TABLET, TV)',
+    (value: string) => {
+      const upper = value.toUpperCase();
+      if (upper === 'PHONE' || upper === 'TABLET' || upper === 'TV') {
+        return upper as 'PHONE' | 'TABLET' | 'TV';
+      }
+      throw new Error('deviceType должен быть PHONE, TABLET или TV');
+    },
+  )
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await uploadScreensCommand(
+        options.packageName,
+        options.versionId,
+        options.files,
+        options.deviceType,
+        options.json,
+      );
+    } catch (error) {
+      console.error('Ошибка:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+appsCommand
+  .command('version-status')
+  .description('Получить статус версии приложения')
+  .requiredOption(
+    '--packageName <name>',
+    'Имя пакета приложения (например, com.example.app)',
+  )
+  .requiredOption('--versionId <id>', 'ID версии', parseInt)
+  .option('-j, --json', 'Вывести результат в формате JSON')
+  .action(async options => {
+    try {
+      await getVersionStatusCommand(options.packageName, options.versionId, options.json);
     } catch (error) {
       console.error('Ошибка:', error instanceof Error ? error.message : String(error));
       process.exit(1);

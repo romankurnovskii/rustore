@@ -238,6 +238,7 @@ export interface UploadApkFileOptions {
 /**
  * Ответ на загрузку APK/AAB файла
  * POST /public/v1/application/{packageName}/version/{versionId}/apk
+ * POST /public/v1/application/{packageName}/version/{versionId}/aab
  */
 export interface UploadApkFileResponse {
   code: string;
@@ -246,6 +247,152 @@ export interface UploadApkFileResponse {
     fileId?: string;
     fileName?: string;
     fileSize?: number;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+/**
+ * Параметры для обновления черновой версии приложения
+ * PUT /public/v1/application/{packageName}/version/{versionId}
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/update-draft-version
+ */
+export interface UpdateDraftVersionRequest {
+  /**
+   * Наименование версии приложения
+   * Максимальная длина — 5 символов
+   */
+  appName?: string;
+  /**
+   * Тип версии приложения
+   * GAMES - для игр
+   * MAIN - для неигровых приложений
+   */
+  appType?: 'GAMES' | 'MAIN';
+  /**
+   * Категории версии
+   * Максимальное количество категорий — 2 категории
+   */
+  categories?: string[];
+  /**
+   * Возрастная категория
+   * Возможные варианты: 18+, 16+, 12+, 6+, 0+
+   */
+  ageLegal?: '18+' | '16+' | '12+' | '6+' | '0+';
+  /**
+   * Краткое описание версии
+   * Максимальная длина — 80 символов
+   */
+  shortDescription?: string;
+  /**
+   * Полное описание версии
+   * Максимальная длина — 4 000 символов
+   */
+  fullDescription?: string;
+  /**
+   * Описание «Что нового»
+   * Максимальная длина — 5000 символов
+   */
+  whatsNew?: string;
+  /**
+   * Комментарий разработчика для модератора
+   * Максимальная длина — 180 символов
+   */
+  moderInfo?: string;
+  /**
+   * Стоимость приложения в минимальных единицах валюты (в копейках)
+   * Например: «87.99 руб.» = 8799
+   * Значение должно быть >0
+   */
+  priceValue?: string;
+  /**
+   * ID поисковых тегов из списка
+   * Максимальное количество — 5
+   * Все теги должны быть либо только для GAMES, либо только для MAIN
+   */
+  seoTagIds?: number[];
+  /**
+   * Тип публикации
+   * MANUAL - ручная публикация
+   * INSTANTLY - автоматическая публикация, сразу после прохождения модерации (по умолчанию)
+   */
+  publishType?: 'MANUAL' | 'INSTANTLY';
+  /**
+   * Минимальная версия Android (обязательный)
+   * От 1 до 16
+   */
+  minAndroidVersion?: number;
+  [key: string]: unknown; // Для поддержки будущих параметров API
+}
+
+/**
+ * Ответ на обновление черновой версии
+ * PUT /public/v1/application/{packageName}/version/{versionId}
+ */
+export interface UpdateDraftVersionResponse {
+  code: string;
+  message?: string;
+  body?: {
+    versionId?: number;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+/**
+ * Ответ на удаление черновой версии
+ * DELETE /public/v1/application/{packageName}/version/{versionId}
+ */
+export interface DeleteDraftVersionResponse {
+  code: string;
+  message?: string;
+  body?: unknown;
+  timestamp: string;
+}
+
+/**
+ * Параметры загрузки скриншотов APK
+ * POST /public/v1/application/{packageName}/version/{versionId}/screens
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-screens-upload
+ */
+export interface UploadScreensOptions {
+  /**
+   * Тип устройства
+   * PHONE - для телефонов
+   * TABLET - для планшетов
+   * TV - для телевизоров
+   */
+  deviceType: 'PHONE' | 'TABLET' | 'TV';
+}
+
+/**
+ * Ответ на загрузку скриншотов
+ * POST /public/v1/application/{packageName}/version/{versionId}/screens
+ */
+export interface UploadScreensResponse {
+  code: string;
+  message?: string;
+  body?: {
+    screenIds?: string[];
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+/**
+ * Ответ на получение статуса версии
+ * GET /public/v1/application/{packageName}/version/{versionId}/status
+ *
+ * @see https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/get-version-status
+ */
+export interface GetVersionStatusResponse {
+  code: string;
+  message?: string;
+  body?: {
+    status?: string;
+    moderationStatus?: string;
     [key: string]: unknown;
   };
   timestamp: string;

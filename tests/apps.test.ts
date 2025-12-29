@@ -74,6 +74,31 @@ describe('Apps API', () => {
       const api = new AppsApi();
       expect(typeof api.getAppTagList).toBe('function');
     });
+
+    it('должен иметь метод uploadAabFile', () => {
+      const api = new AppsApi();
+      expect(typeof api.uploadAabFile).toBe('function');
+    });
+
+    it('должен иметь метод updateDraftVersion', () => {
+      const api = new AppsApi();
+      expect(typeof api.updateDraftVersion).toBe('function');
+    });
+
+    it('должен иметь метод deleteDraftVersion', () => {
+      const api = new AppsApi();
+      expect(typeof api.deleteDraftVersion).toBe('function');
+    });
+
+    it('должен иметь метод uploadScreens', () => {
+      const api = new AppsApi();
+      expect(typeof api.uploadScreens).toBe('function');
+    });
+
+    it('должен иметь метод getVersionStatus', () => {
+      const api = new AppsApi();
+      expect(typeof api.getVersionStatus).toBe('function');
+    });
   });
 
   it('должен проверять доступность endpoint создания черновой версии', async () => {
@@ -155,5 +180,73 @@ describe('Apps API', () => {
 
     // Без авторизации должен вернуть ошибку (401, 403, 404 или другой код ошибки)
     expect(response.status).toBeGreaterThanOrEqual(400);
+  }, 10000);
+
+  it('должен проверять доступность endpoint загрузки AAB файла', async () => {
+    const testPackageName = 'com.example.app';
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testPackageName}/version/${testVersionId}/aab`,
+      {
+        method: 'POST',
+      },
+    );
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен проверять доступность endpoint обновления черновой версии', async () => {
+    const testPackageName = 'com.example.app';
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testPackageName}/version/${testVersionId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен проверять доступность endpoint удаления черновой версии', async () => {
+    const testPackageName = 'com.example.app';
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testPackageName}/version/${testVersionId}`,
+      {
+        method: 'DELETE',
+      },
+    );
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен проверять доступность endpoint загрузки скриншотов', async () => {
+    const testPackageName = 'com.example.app';
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testPackageName}/version/${testVersionId}/screens`,
+      {
+        method: 'POST',
+      },
+    );
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
+  }, 10000);
+
+  it('должен проверять доступность endpoint получения статуса версии', async () => {
+    const testPackageName = 'com.example.app';
+    const testVersionId = 789;
+    const response = await fetch(
+      `${API_BASE_URL}/public/v1/application/${testPackageName}/version/${testVersionId}/status`,
+      {
+        method: 'GET',
+      },
+    );
+    expect(response.status).toBeGreaterThanOrEqual(200);
+    expect(response.status).toBeLessThan(600);
   }, 10000);
 });
