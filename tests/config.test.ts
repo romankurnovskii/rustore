@@ -3,20 +3,24 @@
  */
 
 import {describe, it, expect, beforeEach, afterEach} from '@jest/globals';
-import {existsSync, unlinkSync, rmdirSync} from 'node:fs';
+import {existsSync, unlinkSync, rmdirSync, mkdtempSync} from 'node:fs';
 import {join} from 'node:path';
-import {homedir} from 'node:os';
+import {tmpdir} from 'node:os';
 import {loadConfig, saveConfig, configExists, getConfigDir} from '../src/config.js';
 
-const CONFIG_DIR = join(homedir(), '.rustore');
-const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
+// Используем временную директорию для тестов, чтобы не трогать реальный конфиг пользователя
+const TEST_CONFIG_DIR = mkdtempSync(join(tmpdir(), 'rustore-test-'));
+const TEST_CONFIG_FILE = join(TEST_CONFIG_DIR, 'config.json');
+
+// Устанавливаем переменную окружения для использования тестовой директории
+process.env.RUSTORE_CONFIG_DIR = TEST_CONFIG_DIR;
 
 describe('Config Module', () => {
   beforeEach(() => {
-    // Удаляем конфиг перед каждым тестом (безопасно)
+    // Удаляем тестовый конфиг перед каждым тестом
     try {
-      if (existsSync(CONFIG_FILE)) {
-        unlinkSync(CONFIG_FILE);
+      if (existsSync(TEST_CONFIG_FILE)) {
+        unlinkSync(TEST_CONFIG_FILE);
       }
     } catch {
       // Игнорируем ошибки при удалении
@@ -24,14 +28,27 @@ describe('Config Module', () => {
   });
 
   afterEach(() => {
-    // Очищаем после теста (безопасно)
+    // Очищаем после теста
     try {
-      if (existsSync(CONFIG_FILE)) {
-        unlinkSync(CONFIG_FILE);
+      if (existsSync(TEST_CONFIG_FILE)) {
+        unlinkSync(TEST_CONFIG_FILE);
       }
     } catch {
       // Игнорируем ошибки при удалении
     }
+  });
+
+  afterAll(() => {
+    // Очищаем тестовую директорию после всех тестов
+    try {
+      if (existsSync(TEST_CONFIG_DIR)) {
+        rmdirSync(TEST_CONFIG_DIR, {recursive: true});
+      }
+    } catch {
+      // Игнорируем ошибки при удалении
+    }
+    // Восстанавливаем переменную окружения
+    delete process.env.RUSTORE_CONFIG_DIR;
   });
 
   it('должен возвращать пустой объект, если конфиг не существует', () => {
@@ -77,7 +94,7 @@ describe('Config Module', () => {
 
   it('должен возвращать правильный путь к директории конфигурации', () => {
     const configDir = getConfigDir();
-    expect(configDir).toBe(CONFIG_DIR);
+    expect(configDir).toBe(TEST_CONFIG_DIR);
   });
 
   it('должен корректно определять существование конфига', () => {

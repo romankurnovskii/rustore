@@ -9,19 +9,32 @@ import {join} from 'node:path';
 import {homedir} from 'node:os';
 import type {Config} from './types.js';
 
-const CONFIG_DIR = join(homedir(), '.rustore');
-const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
+/**
+ * Получает путь к директории конфигурации
+ * Позволяет переопределить через переменную окружения RUSTORE_CONFIG_DIR для тестов
+ */
+function getConfigDirPath(): string {
+  return process.env.RUSTORE_CONFIG_DIR || join(homedir(), '.rustore');
+}
+
+/**
+ * Получает путь к файлу конфигурации
+ */
+function getConfigFilePath(): string {
+  return join(getConfigDirPath(), 'config.json');
+}
 
 /**
  * Загружает конфигурацию из файла
  */
 export function loadConfig(): Config {
-  if (!existsSync(CONFIG_FILE)) {
+  const configFile = getConfigFilePath();
+  if (!existsSync(configFile)) {
     return {};
   }
 
   try {
-    const content = readFileSync(CONFIG_FILE, 'utf-8');
+    const content = readFileSync(configFile, 'utf-8');
     return JSON.parse(content) as Config;
   } catch (error) {
     throw new Error(
@@ -35,29 +48,34 @@ export function loadConfig(): Config {
  */
 export function saveConfig(config: Config): void {
   try {
-    if (!existsSync(CONFIG_DIR)) {
-      mkdirSync(CONFIG_DIR, {recursive: true});
+    const configDir = getConfigDirPath();
+    const configFile = getConfigFilePath();
+
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, {recursive: true});
     }
 
-    const existingConfig = existsSync(CONFIG_FILE) ? loadConfig() : {};
+    const existingConfig = existsSync(configFile) ? loadConfig() : {};
     const mergedConfig = {...existingConfig, ...config};
 
-    writeFileSync(CONFIG_FILE, JSON.stringify(mergedConfig, null, 2), 'utf-8');
+    writeFileSync(configFile, JSON.stringify(mergedConfig, null, 2), 'utf-8');
 
     // Проверяем, что файл действительно был сохранен
-    if (!existsSync(CONFIG_FILE)) {
+    if (!existsSync(configFile)) {
       throw new Error(
-        `Файл конфигурации не был создан по пути: ${CONFIG_FILE}. Проверьте права доступа.`,
+        `Файл конфигурации не был создан по пути: ${configFile}. Проверьте права доступа.`,
       );
     }
 
     if (process.env.DEBUG) {
-      console.error(`[DEBUG] Config saved to: ${CONFIG_FILE}`);
+      console.error(`[DEBUG] Config saved to: ${configFile}`);
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const configDir = getConfigDirPath();
+    const configFile = getConfigFilePath();
     throw new Error(
-      `Ошибка сохранения конфигурации: ${errorMessage}\nПуть: ${CONFIG_FILE}\nДиректория существует: ${existsSync(CONFIG_DIR)}`,
+      `Ошибка сохранения конфигурации: ${errorMessage}\nПуть: ${configFile}\nДиректория существует: ${existsSync(configDir)}`,
     );
   }
 }
@@ -66,12 +84,12 @@ export function saveConfig(config: Config): void {
  * Получает путь к директории конфигурации
  */
 export function getConfigDir(): string {
-  return CONFIG_DIR;
+  return getConfigDirPath();
 }
 
 /**
  * Проверяет, существует ли конфигурация
  */
 export function configExists(): boolean {
-  return existsSync(CONFIG_FILE);
+  return existsSync(getConfigFilePath());
 }
