@@ -32,16 +32,16 @@
 
 ## Шаг 1: Авторизация
 
-Авторизуйтесь в CLI, используя ваш `keyId` и приватный ключ:
+Авторизуйтесь в CLI, используя **числовой ID ключа** (из таблицы ключей в RuStore Консоль) и приватный ключ. Не путайте ID ключа с названием ключа. См. [Получение токена авторизации](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token).
 
 ```sh
 rustore login --key-id <ваш-keyId> --key <ваш-приватный-ключ-base64>
 ```
 
-**Пример:**
+**Пример (keyId — число, например 1275328):**
 
 ```sh
-rustore login --key-id 123456 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
+rustore login --key-id 1275328 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 ```
 
 Проверьте, что авторизация прошла успешно:

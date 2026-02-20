@@ -58,6 +58,8 @@ Before using the CLI, you must obtain a private key from the [RuStore Console](h
 
 ### Authorization
 
+The `keyId` parameter is the **numeric key ID** from the keys table in [RuStore Console](https://console.rustore.ru/sign-in) (Company or Developer tab). Use the key ID, not the key name. See [Authorization token](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token).
+
 ```sh
 # Authorization using keyId and private key
 rustore login --key-id <keyId> --key <base64-key>
@@ -67,12 +69,14 @@ rustore login -i <keyId> -k <base64-key>
 
 ```
 
-**Example:**
+**Example (keyId is the numeric ID from the console, e.g. 1275328):**
 
 ```sh
-rustore login --key-id 123456 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
+rustore login --key-id 1275328 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 
 ```
+
+If you get "Invalid request format. Unexpected value", ensure you pass the **numeric key ID**, not the key name (e.g. use the ID from the keys table, not a name like `dev-03-all`).
 
 ### Check Status
 

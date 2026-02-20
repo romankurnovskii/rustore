@@ -58,6 +58,8 @@ npm install rustore
 
 ### Авторизация
 
+Параметр `keyId` — это **числовой ID ключа** из таблицы ключей в [RuStore Консоль](https://console.rustore.ru/sign-in) (вкладка «Компания» или «Разработчик»). Указывайте именно ID ключа, а не его название. Подробнее: [Получение токена авторизации](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token).
+
 ```sh
 # Авторизация с указанием keyId и приватного ключа
 rustore login --key-id <keyId> --key <base64-ключ>
@@ -66,11 +68,13 @@ rustore login --key-id <keyId> --key <base64-ключ>
 rustore login -i <keyId> -k <base64-ключ>
 ```
 
-**Пример:**
+**Пример (keyId — число из консоли, например 1275328):**
 
 ```sh
-rustore login --key-id 123456 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
+rustore login --key-id 1275328 --key MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...
 ```
+
+Если появляется ошибка «Invalid request format. Unexpected value», проверьте, что передаёте **числовой ID ключа**, а не название ключа (например, не `dev-03-all`, а ID из таблицы ключей).
 
 ### Проверка статуса
 
