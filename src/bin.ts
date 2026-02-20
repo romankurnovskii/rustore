@@ -56,12 +56,19 @@ program
   .description('CLI для работы с RuStore API')
   .version(packageJson.version);
 
-// Команда login
+// Команда login: keyId — числовой ID ключа из таблицы в RuStore Консоль (не название ключа)
+// @see https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token
 program
   .command('login')
   .description('Авторизация в RuStore API')
-  .requiredOption('-i, --key-id <keyId>', 'ID ключа из RuStore Консоль')
-  .requiredOption('-k, --key <key>', 'Приватный ключ (Base64)')
+  .requiredOption(
+    '-i, --key-id <keyId>',
+    'ID ключа (числовой, из таблицы ключей в RuStore Консоль; не название ключа). Пример: 1275328',
+  )
+  .requiredOption(
+    '-k, --key <key>',
+    'Приватный ключ (Base64) из RuStore Консоль (Example: MIIEvQIBADANBgkqh',
+  )
   .action(async options => {
     try {
       await loginCommand(options.keyId, options.key);
