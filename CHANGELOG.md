@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 1.0.5
+
+## Documentation
+
+- 📖 Добавлена ссылка на документацию RuStore в `rustore login --help` для получения key ID и приватного ключа
+
+## Technical
+
+- 🔧 Обновлены зависимости: `commander` → ^15.0.0, `@types/node` → ^26.0.0, `lint-staged` → ^17.0.7
+- 🔧 Обновлены dev-зависимости: `@typescript-eslint/*` → ^8.63.0
+- 🔧 Обновлены GitHub Actions: `actions/checkout` → v7, `softprops/action-gh-release` → v3
+
 # 1.0.4
 
 ## Features
