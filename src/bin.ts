@@ -58,16 +58,19 @@ program
 
 // Команда login: keyId — числовой ID ключа из таблицы в RuStore Консоль (не название ключа)
 // @see https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token
+const loginDocsUrl =
+  'https://www.rustore.ru/help/work-with-rustore-api/api-authorization-token';
 program
   .command('login')
   .description('Авторизация в RuStore API')
   .requiredOption(
     '-i, --key-id <keyId>',
-    'ID ключа (числовой, из таблицы ключей в RuStore Консоль; не название ключа). Пример: 1275328',
+    'ID ключа (числовой, из таблицы ключей в RuStore Консоль)',
   )
-  .requiredOption(
-    '-k, --key <key>',
-    'Приватный ключ (Base64) из RuStore Консоль (Example: MIIEvQIBADANBgkqh',
+  .requiredOption('-k, --key <key>', 'Приватный ключ (Base64)')
+  .addHelpText(
+    'after',
+    `\nПример:\n  $ rustore login -i 1275328 -k MIIEvQIBADANBgkqh…\n\nКлючи создаются в RuStore Консоль:\n  ${loginDocsUrl}`,
   )
   .action(async options => {
     try {
