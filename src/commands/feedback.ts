@@ -44,16 +44,16 @@ export async function getFeedbackCommand(
           ...apiOptions,
           continuationToken,
         });
-        allFeedback.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        allFeedback.push(...(response?.body?.content ?? []));
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       outputFeedback(allFeedback, options.json);
     } else {
       const response = await feedbackApi.getFeedback(packageName, apiOptions);
-      outputFeedback(response.body.content, options.json);
+      outputFeedback(response?.body?.content, options.json);
 
-      if (response.body.continuationToken) {
+      if (response?.body?.continuationToken) {
         console.log(
           `\n⚠️  Есть ещё отзывы. Используйте --all для получения полного списка.`,
         );
@@ -120,14 +120,15 @@ export async function getFeedbackAnswerStatusCommand(
     }
 
     if (response.code === 'OK' || response.code === '200') {
-      if (response.body.length === 0) {
+      const answers = response?.body ?? [];
+      if (answers.length === 0) {
         console.log('Ответы на отзывы не найдены.');
         return;
       }
 
-      console.log(`\nНайдено ответов: ${response.body.length}\n`);
+      console.log(`\nНайдено ответов: ${answers.length}\n`);
 
-      response.body.forEach((answer, index) => {
+      answers.forEach((answer, index) => {
         console.log(`${index + 1}. Ответ ID: ${answer.id}`);
         console.log(`   ID отзыва: ${answer.commentId}`);
         console.log(`   Текст: ${answer.text}`);
@@ -212,7 +213,7 @@ export async function deleteFeedbackAnswerCommand(
 /**
  * Выводит список отзывов в консоль
  */
-function outputFeedback(feedback: Feedback[], json: boolean = false): void {
+function outputFeedback(feedback: Feedback[] = [], json: boolean = false): void {
   if (json) {
     console.log(JSON.stringify(feedback, null, 2));
     return;

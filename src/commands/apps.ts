@@ -50,7 +50,7 @@ export async function listAppsCommand(options: {
       const response = await appsApi.getAppList(apiOptions);
       outputApps(response.body.content, options.json);
 
-      if (response.body.continuationToken) {
+      if (response?.body?.continuationToken) {
         console.log(
           `\n⚠️  Есть ещё приложения. Используйте --all для получения полного списка.`,
         );
@@ -389,7 +389,7 @@ export async function getVersionListCommand(
           continuationToken,
         });
         allVersions.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -412,8 +412,8 @@ export async function getVersionListCommand(
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено версий: ${response.body.content.length}`);
-          response.body.content.forEach((version, index) => {
+          console.log(`✅ Найдено версий: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((version, index) => {
             console.log(`\nВерсия ${index + 1}:`);
             Object.entries(version).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -421,7 +421,7 @@ export async function getVersionListCommand(
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё версии. Используйте --all для получения всех версий.`,
             );
@@ -482,7 +482,7 @@ export async function getAppTagListCommand(options: {
           continuationToken,
         });
         allTags.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -505,8 +505,8 @@ export async function getAppTagListCommand(options: {
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено тегов: ${response.body.content.length}`);
-          response.body.content.forEach((tag, index) => {
+          console.log(`✅ Найдено тегов: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((tag, index) => {
             console.log(`\nТег ${index + 1}:`);
             Object.entries(tag).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -514,7 +514,7 @@ export async function getAppTagListCommand(options: {
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё теги. Используйте --all для получения всех тегов.`,
             );

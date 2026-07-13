@@ -129,7 +129,7 @@ export async function getSubscriptionListCommand(options: {
           continuationToken,
         });
         allSubscriptions.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -156,8 +156,8 @@ export async function getSubscriptionListCommand(options: {
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено подписок: ${response.body.content.length}`);
-          response.body.content.forEach((subscription, index) => {
+          console.log(`✅ Найдено подписок: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((subscription, index) => {
             console.log(`\nПодписка ${index + 1}:`);
             Object.entries(subscription).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -165,7 +165,7 @@ export async function getSubscriptionListCommand(options: {
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё подписки. Используйте --all для получения всех подписок.`,
             );

@@ -47,7 +47,7 @@ export async function getProductsCommand(options: {
           continuationToken,
         });
         allProducts.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -70,8 +70,8 @@ export async function getProductsCommand(options: {
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено продуктов: ${response.body.content.length}`);
-          response.body.content.forEach((product, index) => {
+          console.log(`✅ Найдено продуктов: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((product, index) => {
             console.log(`\nПродукт ${index + 1}:`);
             Object.entries(product).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -79,7 +79,7 @@ export async function getProductsCommand(options: {
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё продукты. Используйте --all для получения всех продуктов.`,
             );

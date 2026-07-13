@@ -51,7 +51,7 @@ export async function getInvoicesCommand(
           continuationToken,
         });
         allInvoices.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -74,8 +74,8 @@ export async function getInvoicesCommand(
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено счетов: ${response.body.content.length}`);
-          response.body.content.forEach((invoice, index) => {
+          console.log(`✅ Найдено счетов: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((invoice, index) => {
             console.log(`\nСчёт ${index + 1}:`);
             Object.entries(invoice).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -83,7 +83,7 @@ export async function getInvoicesCommand(
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё счета. Используйте --all для получения всех счетов.`,
             );
@@ -190,7 +190,7 @@ export async function getPurchaseListCommand(
           continuationToken,
         });
         allPurchases.push(...response.body.content);
-        continuationToken = response.body.continuationToken;
+        continuationToken = response?.body?.continuationToken;
       } while (continuationToken);
 
       if (options.json) {
@@ -213,8 +213,8 @@ export async function getPurchaseListCommand(
         console.log(JSON.stringify(response, null, 2));
       } else {
         if (response.code === 'OK' || response.code === '200') {
-          console.log(`✅ Найдено покупок: ${response.body.content.length}`);
-          response.body.content.forEach((purchase, index) => {
+          console.log(`✅ Найдено покупок: ${(response?.body?.content ?? []).length}`);
+          (response?.body?.content ?? []).forEach((purchase, index) => {
             console.log(`\nПокупка ${index + 1}:`);
             Object.entries(purchase).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
@@ -222,7 +222,7 @@ export async function getPurchaseListCommand(
               }
             });
           });
-          if (response.body.continuationToken) {
+          if (response?.body?.continuationToken) {
             console.log(
               `\n💡 Есть ещё покупки. Используйте --all для получения всех покупок.`,
             );
