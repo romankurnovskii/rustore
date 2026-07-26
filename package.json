@@ -1,6 +1,6 @@
 {
   "name": "rustore",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "CLI для работы с RuStore API",
   "license": "MIT",
   "homepage": "https://github.com/romankurnovskii/rustore#readme",
@@ -49,6 +49,7 @@
     "test:watch": "jest --config jestconfig.json --watch",
     "test:coverage": "jest --config jestconfig.json --coverage",
     "prepare": "husky",
+    "prepack": "npm run build",
     "prepublishOnly": "npm run type-check && npm run build && npm test -- --runInBand && npm run format:check && npm run lint"
   },
   "files": [
