@@ -12,6 +12,8 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
 
@@ -21,16 +23,17 @@ jobs:
           echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
           echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
-      - name: Install Dependencies
+      - name: Install, Test, and Build
         run: |
           npm install
           npm test
-        working-directory: .
+          npm run build
+          zip -r ./dist/rustore-${{ env.VERSION }}.zip ./dist
 
       - name: Upload Assets to Release
         uses: softprops/action-gh-release@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_PR }} # add write permission https://github.com/romankurnovskii/REPOSITORY/settings/actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ./dist/rustore-${{ env.VERSION }}.zip
