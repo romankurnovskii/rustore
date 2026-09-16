@@ -35,7 +35,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "rustore": "./dist/bin.js"
+    "rustore": "dist/bin.js"
   },
   "scripts": {
     "start": "tsx src/bin.ts",
